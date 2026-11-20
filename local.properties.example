@@ -1,0 +1,2 @@
+# Copy to local.properties for local builds (never commit real local.properties)
+sdk.dir=/home/ubuntu/Android/Sdk

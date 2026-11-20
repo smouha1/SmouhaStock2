@@ -1,0 +1,1988 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="stone">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Smouha Stock</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root, [data-theme="stone"] {
+      --ui-bg: #F6F5F2;
+      --ui-surface: #FFFFFF;
+      --ui-surface-subtle: #EFECE6;
+      --ui-border: #E2DFD7;
+      --ui-border-strong: #CFCBC0;
+      --ui-text: #1C1917;
+      --ui-text-secondary: #57534E;
+      --ui-text-muted: #8A847C;
+      --ui-primary: #EA580C;
+      --ui-primary-hover: #D9460F;
+      --ui-primary-fg: #FFFFFF;
+      --ui-primary-soft: rgba(234, 88, 12, 0.10);
+      --ui-primary-border: rgba(234, 88, 12, 0.28);
+      --ui-add: #16A34A;
+      --ui-add-hover: #15803D;
+      --ui-add-soft: rgba(22, 163, 74, 0.11);
+      --ui-add-border: rgba(22, 163, 74, 0.30);
+      --ui-remove: #DC2626;
+      --ui-remove-hover: #B91C1C;
+      --ui-remove-soft: rgba(220, 38, 38, 0.10);
+      --ui-remove-border: rgba(220, 38, 38, 0.28);
+      --ui-shadow: 0 1px 2px rgba(28, 25, 23, 0.05);
+      --ui-modal-backdrop: rgba(20, 19, 18, 0.55);
+    }
+
+    [data-theme="graphite"] {
+      --ui-bg: #151413;
+      --ui-surface: #1E1C1A;
+      --ui-surface-subtle: #272422;
+      --ui-border: #332F2C;
+      --ui-border-strong: #46413D;
+      --ui-text: #F5F5F4;
+      --ui-text-secondary: #A8A29E;
+      --ui-text-muted: #78716C;
+      --ui-primary: #F97316;
+      --ui-primary-hover: #EA580C;
+      --ui-primary-fg: #FFFFFF;
+      --ui-primary-soft: rgba(249, 115, 22, 0.15);
+      --ui-primary-border: rgba(249, 115, 22, 0.35);
+      --ui-add: #22C55E;
+      --ui-add-hover: #16A34A;
+      --ui-add-soft: rgba(34, 197, 94, 0.15);
+      --ui-add-border: rgba(34, 197, 94, 0.35);
+      --ui-remove: #EF4444;
+      --ui-remove-hover: #DC2626;
+      --ui-remove-soft: rgba(239, 68, 68, 0.15);
+      --ui-remove-border: rgba(239, 68, 68, 0.35);
+      --ui-shadow: 0 1px 2px rgba(0, 0, 0, 0.30);
+      --ui-modal-backdrop: rgba(0, 0, 0, 0.72);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--ui-bg);
+      color: var(--ui-text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      transition: background-color 140ms cubic-bezier(0.2, 0, 0, 1), color 140ms cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    .font-mono-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .app-shell {
+      max-width: 460px;
+      margin: 0 auto;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      padding: 12px 14px 28px;
+      gap: 12px;
+    }
+
+    .ui-card {
+      background: var(--ui-surface);
+      border: 1px solid var(--ui-border);
+      border-radius: 14px;
+      box-shadow: var(--ui-shadow);
+    }
+
+    .ui-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 44px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 14px;
+      transition: transform 100ms cubic-bezier(0.2, 0, 0, 1), background-color 120ms ease, opacity 120ms ease;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .ui-btn:active:not(:disabled) {
+      transform: scale(0.975);
+    }
+
+    .ui-btn:disabled {
+      opacity: 0.42;
+      cursor: not-allowed;
+    }
+
+    .ui-btn:focus-visible,
+    .ui-input:focus-visible,
+    .ui-select:focus-visible {
+      outline: 2px solid var(--ui-primary);
+      outline-offset: 2px;
+    }
+
+    .prod-thumb-btn {
+      position: relative;
+      overflow: hidden;
+      cursor: zoom-in;
+      transition: transform 140ms cubic-bezier(0.2, 0, 0, 1), border-color 140ms ease;
+    }
+    .prod-thumb-btn:hover {
+      transform: scale(1.05);
+      border-color: var(--ui-primary) !important;
+    }
+    .prod-thumb-btn .zoom-badge {
+      opacity: 0;
+      transition: opacity 140ms ease;
+    }
+    .prod-thumb-btn:hover .zoom-badge {
+      opacity: 1;
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    @keyframes laserSweep {
+      0%, 100% { transform: translateY(-44px); opacity: 0.55; }
+      50% { transform: translateY(44px); opacity: 1; }
+    }
+
+    .laser-line {
+      animation: laserSweep 1.5s ease-in-out infinite;
+    }
+
+    @keyframes modalPop {
+      0% { opacity: 0; transform: scale(0.95) translateY(4px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .modal-card-anim {
+      animation: modalPop 140ms cubic-bezier(0.2, 0, 0, 1) forwards;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+
+    <!-- Top Header -->
+    <header class="flex items-center justify-between gap-2 pt-1">
+      <div class="flex items-center gap-2.5">
+        <img
+          src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAA0e0lEQVR4nOW9abQkx3Xf+buRWVWv6q297yuAbjSAxtZsigBIClykpkbcJHpkHlI+sCRrhtR47OMxIds65thjytaZQ9AWORiC50ikCcuUIckj0iJFENwAgiRIAmygsa+97+vrt9SeGXc+RGZWZm2vXm9otC7Oa1RmRsb2v3HvjRs3IoVLRHoXwq/cLRx6Rpg6Llz/SzB5WC5V+Rna87PXpdg07Zz0k9/bVhQVgPFlyrMPKaByP3op6nFRAdAH7jY8/x3D+DKVTzwUXsyyrjTSe3Z4TB0XDuyycj/2YpVzwRlA70LYusOw+kaVD386qbiqCp//jRU062uB1dhwMarLu2fSh1dsj77Qedzvlkc6XVS+Vem4h3jZ+kV5deTYp56mLb2IHPOEU4g5BBzg3zx+VEQSCaAP3G049Izw7EP2QkuGC8YAMfDpka73fWQtjcovovadwHbErMfPDeMPgZ9znWm8Lpm1t1F7P88ArF2ea/ZZ+l6mnC79GoMo0sYgXdJm7vVIq9r5rg3AhhA0oFmj2WyWxQb7gCdE5PteofgD+YNHDyRZ3LPDu5CMcEEYQO/Z4cXA630fKdGs/Ro2/CgibyNfGiFfBL/gQPdyivEsYlwDVOna+d06OXnWpYNFeo+6tnesdt7rVgftxkg969WN6drTa+ctkbguQhgYX5tCowqNKtTLhPXKrKA/VON9xcsVvip/8GgFsn1+PnReDKAP3G148NMq96P6x+8fw/i/jQ3/MbmhqyiUIF+CfDHEyylqDc26EDSEoA5h0wFgozbMOaqg68g6h9Gu/dJlip9DUkT3NVNOD6ZKl5++Nr6Tgl4OckOQKyheXjHGEgbiNWY8qc1AbYawUd/tGXPv6TD/pcWf+vF0bFinVe186ZwZQD95sy+f2hUA6Od+/XdR+6/IDW0gX4TiWEiuCDY0NCpCfRYaNQgbLcC7ZjoXE/QaZbb38y5gdwU2BlPVSXxNvTMHk3WVFB11t9EtoYOR01JMPPDzkC8hpTE0P6wYz2qjQq5yxqM2jW3U96qYP/L/ryf+BODhj2333/GFJwLOgebNAGldr//Ph7Ziw8/h5+4kPwyl8YB8yRA0DJVJqM1As4HrLIkaGIu8fiJ+ENC7pOnHFKpJTh0M0FVM9y9XUBCJNFgv+yD7nranaXFa6r6NVFnUZ34BShMwshD1C5Z62ebKp3xq04RB8EiI908K/+7xZ8/VNpgXA6RFjn7u138H9LPkS8MUxwNK4w748hmoTDnjRkwEuGQ7o70j5rw/oAHXxgBKyniL/q+ZZH3UQ7f8IxtDpPU8TiW93qEtbU8mho65hKqrj1rw8lCaQEYXO0aoTtnc7Ak/rMyUQzH/tPCpnV9Mq2QGpIEZQB+428S6Rj/7wc/j+R8nX4KxpSHG9yhPwuwpZ80az4E/aD3OWfS3ieP0KItUjaq6uiQMEaLWtjo2EsHaJplU1Y3ymMS4zorSSZw3mlwnSbvUuWP0d7SxC/jJhQENXZv8AjK2FEYXo2EzlLNHPL82TWDtfbl/t/P3APQuzKC+g4EYIAZf7/tIiUblAfzC+xgaCRhd4hE2haljTtwjYMwgWXYpZEAm6KG34zTaPpptiKoTqwpgfDTSsRSGYWgUCiUkVwTPeefUWsfIjTJadQYYtRm0XkHCJtgQMQZNMYXgGKm9Q2Mmmtfoz4CfShvPdNRCcQxZuBr1h5Tp42Fu9oQfBsHXveLIh+UPHq0MygRzMoDeFaW55QMl4Bvki3dSmmgyvCBHdRqmjjmLXkyrkudK7Z0ylz5NDChNaYboOmy6e17OgTy2BMZXIAtWwsQKZHQxUppAhkaYKizH98BIPLIhVGgEsKB6EKpT2JnT6OQR9PQB9PR+9OwxtHwGCRqu2cYgIhlVICId9e7etj6jv5eaDAMnDRatgeI4OnOymZs9nms2m4/kfP+97Hm8AjCXOuiLVuLV++ffsnz2g39Dvvhehhc0KU3kmD3jwAc36lXPD/yk0F5MoKlLbenH+Km1qA3dvdwQjC6BJeuRZdcgSzYgC1ZSHV1NMSeY86hmrankZ4+ipw8SHn0FPfw89tirMH0cCYOEEYCUCnGMkBQ7sOhvT0tWGkR2jSxYBaNLsbNnmvmZo7lmo/6N3KeefD+feY+ZyzDszwAP3O3Lhz8d6B+//z5yxY8l4JcnHfjtgPdlgF7P5hD9HQZUC3hnNDsRr+LB6CJYtglZcwNmxbWUF21mJC8d1crYgIMwQ5SuPakqTNWU0aM7Cfc9id3zBHp8N9TLmIgR4iLiWQOA9GKAQcFvr5y1ThKMLsXOnGzmp4/m6s3gC0P//qmPp6fr3ahn82NPk/7xB34Lz/8SpYkmo0tylKORL110fU8GGLSX05dtulzTwKsD3Vo0V0AWr0fW3oRZfyuzy25krJAtL53z+cqoXnmFFuTMfsLXfkb4wsPokRegUUWMl6STNiaSttHfc+rZ7bq9NtbCwjVO8k0dbeZmT+Rqof528Q+f/M/9vIZd+yOeTnDrB69F7U5KE3kmVhiqM8LkIZI5fUdu3bKbT5dnG5l0SGTAKaBhNOJzRWTZ1cjVb8GsvxW7cB2+6czpYq83xxopabqCPXOQ4IVHCJ5+ED2xB4M61YCTBMlsQpVkzaef3u83LU6SREboko1ocUzN6f2W8plG6BW2FfY//lIvj6HfkdFdCIeeEXM/1t4U/CnF0SKjS0KCyNqPK99O5w1+nD4l3qNOiefzNgxRPwdLr8Zsfhvexu2wYCUCpCedsefhUpAk/0SaQsAsWoN3xz/ArLuZ4OdfJXzhEaQ+gxgPI1E6a52KUEGwvZV0P4dZkiQlLc8cQJZdI3ZiJfmwVgzLs38q93OHbn3G0MUh09FPLdH//t/Gy32R0SUBxTGfM4fcdKiXtT9fBujhEXQjKnabOus+Nu50wSrM5rdjNr8NWbS2lUX/ki45petztqqUnvxvNB//73D6AMZ4iSoQQEQdE6QkQTaz/qM/ozYQNzsojSNLNqDVqSB/9pDfCPV3Cn/45Je6qYJMvyVTvnd8rMSZQ68wsnAFEyuU2TOGqWPOwZO2Qtup496gkoLM1E5Tv20YoIVhZP2b8G56D3bV1kTUX27At1NcvyAEfeVRmo9+GT34rJMSiUqwOPnVaRPMD/wUhQGycA06ttR6Z/ZLOH3qaH6ouKnb1DBrya292ZP7Uc4c+kcUiispjluadcPsqR5+63lSD/AVnCcuFvkiqLVYa9FFazG3fYTyuz6BWePAv1T6/Xwplre+B7ktbyf/K/8M2fxWLMa1TRWrEgHZpgbOBfzYLyIGnT6OBHUTDC+x+XxhZb1a+UdyP8ramzMBGK2paTz67/xfhjh94GXGl61mfLkydcwwc7p74MacamBuNZH2kGnUMBuGqPFh7c142z4Aa27Ek8t/xA9C4Ym9NB7+U8Lnv4fYACMSOZBsy39wruDHJJEqGFsGC1ZZ/+xBaU4eP3RieN3mNbu/WYOWFGhJgHj0Tx7+IIXhNQyNudFfmYpXPzoqMi8p0A18aXnNM+AXhpGtO8jd+Tt4a68c8BXwlm6g8Esfx1z/bqx42FjlJZKg21upqzld5iRSgPJpJKiZoLTIFoaKaxZXDn6wXQq0GOD6X4qC28J/SGFYyRehcjbr5p2zhYMzRBZ8g43At8OLMG/6EPU7fhdZsPINI+4HoXgYmYWrKdz5W5iN27FWHRNEadT2nhF0548eDCECQROdnYzWPEbU0/AfAi2siRhA7yJa4v21VRjvbRSGBRsaqtOpaie5D1Cr/pQx9qI/ay12bDnebR/GbvsQIwW5IkZ9O8W96S27itz2X4exJc63Qdt0LvUvxN08QN+3FkXcwK2cgbBpwqExQczbyv/6Tavkw5+2scp3QzsWCY3KOyiUiuSKIY2KEDQ6jb+2ivWsQHs6zTYpbrCqYG2ATqzGu/2jyPW/TN67MkT+XFTeeCdmzY0pNdDdyJ43+DGJQKOG1GclyI+E+WKp6Der7wASzNtku7ybfAk8X93ybsrF1W+kDygFEvATl24E/vhKvLf8feTat+PFboaBcnxjUty2sSGDWboRNX4Uo+CknqaCW88Z/NR9rUyBl1cKw6gN351+bPQuRD61K9AH7jbAdvyCi+WrV/pn3K9S/ZZxI31nrXXgjyzBe/PfQza9De9KRr0LeQYoDKNiEjtAL8TIj++pC3TRegVsYMiXEGO26wN3G/nUrkDvSlt3h55Z6uL28xA0hLBJxzicSxX0YYIOvR+GaGEUb9sH0GvfmYz8v0sUWLCVKWzQbN1smxJnaNAZQFrdioGgDkFdQr+Axazn+e8sjZMbtu6Ihe56/HwJ4ylBQ3qGa58DEzi/vm0xQRhi/QJm6w6aN/wquS4uhiuZ4h6arlqaR19Ngldi0Z/2jbReGhD8tjIA5xNoVCUwec3n86VKpboegK07jGHqeKzkV5MbAuNbgpq7ldb/fb2AfSri0E8aaFWxgFx9G7PbPkoxJ/1MyiuTogaX9v+I5qEXSUvarn1xPuDHz4IGGN+afAFPdDUAU8eltRoYBkvxcm51Iog2bajpzKjdKEyvg6ZVhrYCLZNFHcCGIay6Dn/bB1hQvHymet3ULZAJBMmk6RIgMmg5IjBZDuGpB7FTxzAmXsts9Zf0WjNxCXpea/u9OJ9mDcQoXh5Vm1IBK6+LS1qWBHQmmzeUfqO787otvWoSSq3xws7IYrxb3u+sX14/8JWsYHMrc13+Uu9k0tC1d+YsU4BGoPiP/xn1F36AqHYsX6cDSOZUBWmboVcacGH6EAXtyjKAnUerko4HUIznALPtEUSdozvj2u0iDdwafsviV1WsyWGueyf2qjsyDb1UFI/gBNioAlah3rSU65ax8n5sZZqwOoPWZrD1KhrUXX1zRbzhCfxFq2guuoaRIZPkO1db4i5rhErjib9m9tGvQGUK43sd4eaZlwa41n5p4rxt6KS68TOvdASEtDLpped7qQDaVIRNxL6qE/2y/mb8G96F8QfrtAtFmZpHfq2pakjx9Es0T+yneeogwenDhNMnOTk7idZm0EYVDRpo2IQwkoieB/4Q3ugi8qu3wPVvJ9j8biZKXkfzk7K1JTVmahb96VeYfeR+9OwRfN/HAMZIEhvQpnCyGXW5nhP8dvutjToZoO/Ijovskybl13aX0ZRveCH+je/BRP79SwF+G8syXQ3JHdlFfe/T1A88R/nkPsKZ01CvOKBjcRy1xbShqc0AbVQJy2eoHH2V2ks/pnjdj6i95dfw192C38WRIdFCVvPIqzQe+0uqT/4tUjmL53l40irLrQaaRM1kCz5H8AdQUFkG6MUtHazd3rWpSqXX9VVRq1gEc83tNDfe3kPkXHhKM9np2YDCq9+j9vyjTB94jnDqGBI0EMAzBjEGTM6BERtgqh062DmxvMSXYctnqD7xNzQPvcDwtvdSuuFOdPF68hEjNEOFMwepvvwTKju/QXPf0xgN8DwfTxQjgjGCgdaegoha6/QXGnwlvZexBx4RI2Qw7yUNMtUl7e1zNmAIi9bhXXcn+dyls/oFKNctvPwwwZMPUtn7FLZ8FoPiGw+Ty2dCs9w7LngTtS0XWWS2q7VOfdAaJyoeVsEefZmZbx+i9sIPyK+/ifrCVaCW4MwR6vufcVO96jSe52E8H08c4xmRSAXEDNBm/V9I8Luq9TQDxPvkMi/FJ2Skw217M0J2QqBuqVM8vGtuxy6/Do9Lp/cbx3ZT+8lfU3n2++j0CYwIOd+PAjCIRl0b+MkoNPGEjDjcVMVz/9fW2r2L6FFUfGxQJdj9BM19u9z2bmvRoAFhE2MMxvcxRhz4URCIiVRAt9nGuYHfYx7bRxUMJpH7MQJkmCFx9YqgYQBLNuJdcxveJVrhswr11x5n6vtfprFnJ2JD/FzOjTRxej3p+KhjTGQdOmng1J2Lyonn5a2Kt8AHRaIZDi64wxj3rFl13WIETC7ZcmYEPCMJozkVQFJuMvrnAn8+Ir/X2UkR9Z4FtKuA9sx6MUNE1lqs8fCu2o5duumSjf76np2cffDzNA8+50Su7+MZSaxtgyZWN0hG9KZBF9NyyiRTB1rgE4FvPIO1iqhiIqbARKpOWwwmUfkt8DWlglrgd4SDnSv4fSz/NM0hAdKZtM9vslIhMfri0REGML4Sb+P2iz7647xPTgfw47+IwI91rTgGEMGIYlKWdsvYM8nIT7c08ciljGCN0qkqYtwBEWJIwHe2gqQqJhmQ4+metN1Pl9tq2AUGv4uR38YAWQuxd0FpQ8W27sUVjvS/WXkt1WVbGemR44Wm0r5Hmdz3NEYc6AkDiDO0jJhkY2gy4iXeO5jd2aua2szZ4ogELIUketlt8IikhWcie8smW+UlnlHg4v+FlsWfAT8NzsUAvwv1dwR1NfjaC442O6klFpE22rNnVl/PSKEHd19Ais2c8OxRaFQTC9szROCb6P+pjo/aFU/1WmALWV98SgV009HRSNZUatCUirSRL8Bzc/3Wa5n6X0zw42Xlbhj4ybGp1raA75dxN2Zom/qpDWF8BWb51UlVL7b+F8AUxzB+DgnrLYPPRMZf7G1LNSHp+NS8P+PyiNud6djopJFIgkjCMM79LdiMxEhsingrd4qxes71uTDg99w4kqKOMAybmuJ0pWQSnNYncUfZyPkTIhMrmFpw7ZwVuBAU16Kw9gYKa65vLbAkBlevFyMVgKb4uhvoMbXUo/PcRSMr1unSWthJ/xHXJRH3fcDXuQ6H6GIkzgd8zar5vkZgeyZdlyhTFUi2cYvBLFjJ6CUQ/+n8vaUbGHnbR6jYJvbAMy6k3fPQ6MjXrOuiBXSrlV3AT353P+atYztX2iWesuw7pEr77/a6DAp+t1QDzgCgqys4PqJswIxFWqIfwapFjY+MLyd3iYP8jED+mrdgRhbSeObbhK/9FHvmEAQ1tyvXeBlLX6GjEzPhKXOA3w5myhuSUnvaphK6/I6u+8M2N/i98MF2lxLQTwK02wM9AhQyUz8lOrRhCBlZmFT7UrKBCORWbsIuvYbC1ncR7n8ae+AZ9MRu7MxJpFGJRH60BiCSPWI2bfF35N7nDODWRfff8wG/A6xzBL9H2jRlXcH0MAL7ZdRmLasNwc8hQyPp25eUFCj4Aqu24K/awtStf5/hk8+jR17CHn4ee+w19OwRqJdxfn8v64WLjbv4mv4jP11y6/LyBx/m9ARmp3tdKRXx48pTt5HUL8xZ+MWitMQVgfEhgTU3wJobKDc+xNDpV7FHXiLcvwt75EV08rA7zgWiQ56cSzfrlYtztT0MuMto5PcFPvtsHquzAxgWcRCI9tQYl5TSDrnY0TecF1ixCW/FJppb30fh1MuEB57B7t2JPfwiOnMCmg2MMWjKkZPOM5YMaZ0f3eLCgD8AqL1shp7gd1nsI6MC2s8QmgeSyUwg+gubaKM693uXiCT5J8sMpbzAymvxVl7L2Zv+Z0aOPEG4Zyd2307C43ugOuWme8bvVBGQxD606NKAP2+R32dBaG4JMI8phSO3E8VOn4ovLyvqxQwTRYGr3gwb3kxu8iDBgWexex4nPPCsUxFBLZrLe05FYJFY/SULSXEZffrsYoDfE6N52ABWBZOcoasdxlt/HDUZGYhBG1WC469BoBT8yyf0u506mAHc8TOL1pBftIbydb9C4fizhPt2Yff+HHv0ZXT2NDTrKRVhkMgBBikVEWfdJgkuC/DtQI6g7NyxXzGJTyW5GRIceI7Cqd0QuYMvd8r4iKL/DxcE1t6It+ZGTm/7TSYOPUa470nCvU9hT+5FK1OI1hExYHznFOoBiMwH/PM29vrcb3unjw0wH3K637lgFTE+wYm91F/8ESy5Cu8NtuszPbGNVcTiYQOb3wpXv5Xc2YOEh18g3LOT8MDT2NMHoDYbtT01pYyASE8iO6TCBQW/270uC1gp6rIcnPrrJ0Y6jEPnW0t88M0q9We+TW7dVvyN2y5bNdCPuqoID1i0BrNoDeGWX2bo1KuEB54h3P044aEXnH8hqCPGRDt+WgCmVw0lk2tE7SK/y71zGvVtz9Im4bkH6aaNnpT+E3X+ceP5NE/spfKj/4YZW4q/eM0bkgli6lhGEBjKtaaU0zd9iNLRpwh3P07w2s/QY68QVs66d6OzAUn6STI2QyvTdBkXQOR35NmZpEdYeGzQ9SpQMr808y7Rd/EUT5TmKz+hPLqI8Jd/n4XD3huaCWLq5l8YGxLYcCuy7lZyt76XYO9TBC//iHDfk+jUMSQIEN9NJ9XaRFLGvoMsg52PyO9MG192qp9zlgA9DJ1UfJ0RRY3BhCH1px6kkC8x9c7/nfGiuSKYALpPKT0DLFxNfuFqate/l+L+x9y5wa885o5xDZqI57UCT0i5naE70OcD/hzvtBjAtvu6YykwGFQSiQJRdStvAlbcCp1t1qj+7KsUxXD2zt9jonRlSII0ZZghatzYkMDmOwg23k7x4E6az3yH4MVHsGcOYjTag+De6MwrpkHB7wl8BMxgRmC3suZ2Jgjxxxg1FV3jInCtCJ7noY0ylZ/8JcVGlePv/D9YNuYnFb2SGAE6VUQxJ7DxTTTXbGPoujtpPvl1ghcfQWbPRKeIx31GZhGqs1/OYdQPGhbeOrG2VfFzQSYWZoILw/IiaeJ5HtqsUX38q+RnJ2nc+Q/Ir76O2Da6HNYOLjTFUiHDCJtuo7LmLRSv/hsaP/0r7IFdEAYYz0skb3Z9ldRVF+rlq+k3cHs6gtKiv4/Y6EaxMRg3WjRiKCNuHUIsvhHCsEH9me8QTh5l+I7fQG54D6V8PF36O8AIwHhR4E0fwFu1hfpjD9B86m+xlbOI52EyC0+xF3U+Ir/zWduLmasLulczPSNIAi/V8YBvBOdq8sAq4f5dTJ85zND+Z/G3vx9/1ZYkdu+KZgRaA8VbsYngV/81hSUbaPzwv2BP7QfPS+IY49B0pUc4G/MAXrsP6DYjMP6OXp8I4QEoqWsUlZt4HkxUEQPi+wQzJ6n85K+o73uG0i07KF5/J/6S1HcAop660nghzQhjQ4bgjt9ExpZQ/+592MMvYjy36TRRp9F0Me1LiN9vXcwBfg+64Lu1hVQ8XOwXiECU+MLiwuZ9n9Aq4cFnmT6+m+rzP6C49Z0UN9+OWbIeL96eFf1zpUmFeHT7nuDd9B6kUKL24B8THnwOL940CIlEVW1zU0fPetIcBiDMFRMomaIGplZ8vWTkeSzaiKVCFJJnJEcY1Gi+9jiNA89Reeohhq69g6HNt6Erb6CYb3XGlSYV4naIQH7L20GV6jfuITzyEp7nQWrUZ/wFcO7g9wwL71gDODcVQEp3JfniGhCrBDFgrRISuZB9D2MMYVAj2PckMwefp/LkN8lvvBW7+TZmNryTJaNeIhWSbK8gZlAgt+UX0UaF2jfuITy1HxN9Zyg9NWtXBdlM5hj15+0J7LZaNccrySbMSD3EFrEYQRSsuJ22oYDxPawawjDAnthN9cReas9+D3/FXzB91XaGrrqV2sptLBj2MirhSmEGETBb30N++hS1b30OrUyiXnSSpuJ2IGmPdnYDX0x06ttcjiBNfbZclWjuFpc7f2pbAZPkhzt+IS1n4pM5RNyBC2Jx266NuIMly2dovPITGrt3Uh5fSm7VtZzdeCtD62+ivvxGxktXBjPEXZTzhNqbP0r+1H7qP/4KasPoNJGWJM3QgOK+G/k7J7u4AsCBP1cPDugnSAyXJHQqMmokkgDWMYERcUeu4DyLRt0HGY3vY1SxNsSeOUT99EHqL/6Q2YkV5Fdfy9SGWyisv5HGshsYK7aY4Y1oPMZMMDpkCG7/MM1DL2Bf+yni+W48phrlTLR+AM+NT5/dwS0JcM7UxiAtaSCZZ56RaPNKtHXaOP9BLOoUIsZwYVhuB3ITe3IvtRN7qD33MGbBSvKrt6Abb2Vow00ES7cwXHhjGo9xm71lV1PY9j4qh17A1mfcIhLpGVYvgNP326XFxXAEzctjGB+I3HYqVsTRFnXn9yBovKqo6hhEWrucrDhmcJ+aaaAndlM99hrVZ7+Pt2g1hbVbsZveTGHdjcji9Zltam8IZogkV37T7dRXbSF87afum4OJHeUm1p1ewu7X6Wl5mgZngHmAnKXuIir+YGJynfgMJFkqTbaci2A0ClxVZwQljKC48/ZjZghqhEdeonzkZSpPf5vc8qspXLWN4qZfoLb2dhaOvDFURFwnu3At/vqbCfY8gbXWGc5d3+iFj5MnvULJ2zyBkVgZJCSsK/U3OFqAx+liB0e8dTpWO+6wiXjeG/8J0eFTkX0Qf3cvthdazJB3z+ozNPf8nMa+XVR+/nVya25gatMvMHT1m7DLru30L0T9dbnwQ2wQBis2obkS2pjFnVMYeQlFSM4k6JWH2gTGbu06RxUwt4fJFd4JeDdqqQWIj0tteRRT3w+WWCo4xrCRUZlmBtXIZrC4c/w8zx1YdfYo9TOHqb/0I/zFa8lvuIVw05sprL0BXbiOvN+mIlzFXl9miGdNo4shX8LWpjHGQ+NpdHJOU7d3NS38e9IcnsDBgG69Eo/e5E7vvLtQWk9pfJ3EF2jiXVTUTVI0JSEkrR7cSWDxbzWCFR8LaFAjPPIi5SMvUXnqQfylGyhsuJmhq7ZRWH0tumBtJzO83oyQGwI/l6jEpI+kmw1AT3HvyM7HE9ifOgvq895cNkSXGUNcRnpxKX1yl4gmUyN3NiGRejCJ4Rif3mVtZEz6HtZG3+ipniXYu5Pmvl2UH/8a/tKNFNbdQGHDzRTWXA+L1ifMoLyOTBBtPImnfTHDd9RHtRs7JM/Oywicz6kTSYHnnKa35EgzQ9rlnLUX3H/uU+2CjQ7sshotT5vIgDS++7+12PIZmrtP0djzc2Z/NoG/dD1DG2+luOWthBvvYKz4+n3XRhs1tNlIzLPW6GgdSdcfn97POhkg4hTtwTG9yzgfwKG9ktmkkTaTtgTRdXJQU5xShPRxriKKFRA1mVmEW512h1mr8aOZhcVWJgn2nGZm3y7KO79Jcctbyd3+98hvfNPr8nErW5nCNqp0sKBE8dc9x9HcmLRCwqJTwgaC/IIxxtyg98ovywud8XOCAz2eTbitWZrYD4b4SLvIXiCyF9TZC/E5wOHkYWYf+0vqB59nwa/8bwzdtKPrsfAXg2KGD6ZOoM1adgREzjqNF4faKe7M9GbFLnRhdwcPlLYf6J3P++bdhRmSHERahzPF9kHUGQqJQWWMScA3ViNnk5taigXxnWQIDjzL2W/dx6LxpfhX3XrRbYI4/0aghKcPuU+/eR6t/hE0WVVJv9jvulOqt38VKmsIDmK4pf/6NidrXGZf6XzekX+3+2332g9EbB3NGh0XFz0z8Z9IcoK3L+4Id88YPHGbWuJjZj0jeL5PcPgFqs89TDPsFrF7gSlq3nTVEpzYGy2YSEe7e4WKZRL0wWd+foB5GYLdpif9n89ZTg8p0ClE2nbakFqSjvojvT0rsarFSQIxglG3EhlaaTldgoDgxD4qdcv4JdrbMHryac6c3A9E3tJUgcno74fLHJhdQBXQPd15g97rWS97pUvapKMSr2N7XVojy8MxgxWSaYPgfAmeEUwuj+l58uQFpKiIxoHnCCePuhCxDtLeXZq2AfpQ9w9GDOQPGATw3ul6JJ772TyA71Z2RmcmwZYt1RHLDhOLXOOYxoQhWihSWHMdw1EY+8Vig1iyTFct9deeQOtlJOe31JnE7t8eNZirXwc7IKJbtQYpbwC74Ryez+9cnN4GY/u9zBI10DoGX7Lf9LOWwjW3MnT9nc6PwEUU/1HmuQM/Y2bvruQDF8RltqmCdHv63puXIygp5DxFe7/K9Ximbc+66fiYsv0wGPDzPmQpDMit3crwu34Xf9lVXcq9cOSY0Vn/1ecfITxzCN+09gpkzhkepO7xs4GMwETsx4m183GX+z0LncfzbqBrnC6dNrVpIHuY49wWsXa5n77XYgxB1aI2RMXD33Q7xXf/r/ib33rxl46j0a+Hn6P23CNI2MDkcsnJ5HFsXfJ9o3n4WWKa1wERFxT0Hmk09Sz53pC17usbnu8WQyD6DHoz+sybyTBHa699m56nBXJXSZK6r5FzSG2AVYWxZeRv3EHhtt/AX7l57radJylANPrLTz1EcPRVPOM58E3r41K9DpXokhtpWdUtdVcGcIKgt9joTHzuaTQ1+jT25wcBFMcwK6/FrNmKTKx0BtvZI+7ErsMvuDN5PK8VXpY2WhP/OHRrdloFxAJV1aJh4FIPL8DfuJ3ctvfRuHYHfuESLQO52SZ2/5NUnnrQHXKdy2V8GHNP/XoPsAHiAWJnynkacoOkicV8Iu7FfWHU5DDrb8a/5Vfxr7mNcMFacpETvBEqhdP7CF54mOaTXyc8+gqiofPmSetDLGrnZjjQRMqoKuQKyKJV+Otuwr/uHUxv/lWGRwx5LrLBl9TGgT9bs9R++lXCY6/he87yjz82BbENMFhUkKYrPqcNMM8NBeeUJu14ia7j3zYMoDSBf8t7yb35Q5gVmxLOjynvCSzdgC7egLf2RhqP/zXBSz8knDlJvI+2+2fX3dQnAV8E9XwYGkVGF+Mt3Yi39ka89bdSXbWdUlFYTP+Rc8EpBuv5b1HZ9S3EBpicn3gtRTpVW/bltjua+tEHl/N3BM3jeca0zIAfwsRK8m+/i/r2jzJU6L0Grxod5rjxTcwuv5XSlm/TfOEHhIdfQKdPQLOO2CYQ2QnGQ/w85IpIcRQZXoCML8MsXI1ZvA6zZD0zi69nvOg+KJXjEgNPa/Q3T+xj5od/jp084j5ySTz6W7q//ROzvQ31JOe+Zfc/LXy+06Uuz9tTJuBHDGDDEBasIv/ujyG3fojR1JfFu1U9HdA5UTJw03uob95B6fRL2DOH0fIk2qi5tLk8ki854ItjSHGMM8MbGS4I+Zwk29EXpKstlzbwI25rrWmpPPZX1F/+ifveoYnXL2KR3z796zPq53Lg9XAECUHD/TLRqlN68WGeKqBb6ozBh1uC1uI4+Ts+Arf+Orl5fFY+WfsHRocEVm1xf3PQkm7VbbeuXwcKnnmQ2cf+CmlW8XJuI0ys+420j/65Rn07KeJHUIcBaV+2v21FMZ59HHd7yHBTr+65d8m7P+gd8+6U6FfA2/KLVLbfxYJzOFM4sW/ShUuP+20vvt6AQ4vZ6weeY+q7X8ROHsZPif54O1hW7PcCvw9OqhB9MJMwQFWPA2xbUdQEaUFPEDZBVfDyc08D5wt822MbBDCxgtzN/xOlkol88r2L60eS/DPY/cuBYvBPTAfot/+Exu6d+MZEn7uLl6tTS9pkjcDBPbHRs9wQaq0Q1PFETsRPDePL3EAR75A2qhA2DH6+69pzu23QMWGcw3ZofV/I/ZnV1zOz9q3u4WUK1MWgGPxy3eJ97z9SefKbeBq4j0vTilNIzl3sO+r72GnxnwjkimCbJmg2CJBDAIwvU8OzD1mAhuT2NRqNim8DITekzg5oyyxVZFfg+zU5nYcq6vmYZVczVry4K2uXG8XgNwKl+cMvM/OD/4o0yniewYuAT0R/8nmaVtjXwCI//dt4kCuoHzalVqtXxvKyD4BnH7LJNHv4pnefMBruM80q5AqKXyC9RNyV1/oC35VVEucP4iHFMTel+ztCMfhBqNR+9t+Z+vYXYOYkvucln7Vvif54/t/yarY8m3OM+vZS/SHIDWmuOYNouI/bfrOlAuR+VD95sy8f/rS1Vp+gUQbjW/JF5zzpdizJQMD3eBa9a63F1sqE89t78oalGPzQKtWf/w8mv/FZ7OmDeH70lXPBSYDUil+nTTTgqI8pjoIaKiFirNQrqOoT8uFPW/3kzb7cj5psevku9TIaNITSePabOIOI+R4VbHcvqwgEdYKjrzBVbW0Lu1IpPfLLj3+Nyf/xGeyJ3fgR+G70RxJANDlUK3tk5HxGfeoZIMVxbNAU6rN4xnw3ncQxwIFdIUCQKz5cr1aqXn3W08KIksuqgd7Nm0flUiqluf9pSq99t5XNFUiqLUdP+cd/zuTXPk14/LXUyI8+b5+AH4HeY87fkXm/ZzZ01v/QmPr1aa9crlQrUngYSDA3AHI/qg/cbYb/8OeHsfaHfn1aMb6ltKAVjdpZQu/KDTKFFIM9e5TKY39B8+irc4WvvyFJcV13thJS+c7n3cg/uTcDfvxl83i+D6nopHMd9bHlr+q+4Or5tlCbVFX7w8X37jusdznVD+m1lue/YwCs8b5MZUqol93Lfo7sQtH8gRdSU8DUPYDGKz9h5ttfoHnyQMa790amdBsbx/fS+Oq/Zeqb96JTxxLw/WjUexH4sXNOwAHXr497Fpy2/i34eWR0MVqbheqUYLwvA7D25gT3FgMc2BXqXcip0pqv1eu1g7nyKaO5omV4Ycp3fG4jPr3+HgMvke6TMKD25DeZ/sZ/onn0tTf8dDAW+aFVKi/+iFMP/FtmH/0zqE3jex5+Ar4k4McjPgaj506fuUZ9TCJgrQPfH7KF8gkzU6kfnPQnvqZ3IbH4T5eJ3I+y9mZv7f/5zSrG+4ypTYvWyypjS7pIgQEqRWvUt1MruCFasLMB1Se/yeTX/m9qe55qvd8z58uPUivNnJoJmP7eFzn555+k9sx3MbaJ73l4aEvvp8CPp3zx+z0z71dw5l40+seWYGuz6lcnRYz5zNrPvlBl7c1eLP6hzf+id0XXG99cqpdnXvHHFq8IFq5TmTlp9PQBMD4JLAOO+OReUjfrDnzSaO+dVUIVQmsJQou//mbGdnycwg3vwvdSZ+ReppSuXyNQgtd+wvSjf07l6e9AbRrP85yRhxP3sbNHaAV5mshn3dHO+QIPrjJhE1m8Hh1fbnOndkv97Mmj5Yn1m5Yf+WkFosEeUXYaeD/K1h1G/s3jZRXvk15tWqictYwuhuI42KBv4b1GPOB2tcTTkvTUxwgGi4m2YgV7n2Ty//v3lB/+EpPlsIsH7PKg9IhXhfqRV5n52//IyT/7l5R/9lWkPoPv+27LmQh+ytN30cAHCJtQmoCxpWh50uZrk6LG/+SKP/ppma07TBp8V3Inid6zw5i7Hworn9jy46Hhkdvri68KJQw8PfaKW05sq23fveldFo1ay8HaJgkiaRAE6NAYxZt+idG3f4Tc+ltaB0e/jhIhDXp83Ty5j/LT32P251+nse9pt5zr+07Hoy1dHy3stFb3WlO+Off3DfIMwIaon8esvBYrfjhy6mVvZnb2sfH7jt1h79nhySceig+CSqhrV+pdbut8fdVN15qwuVOGF+TDxeuNVKZET+zJ1HhQ8JNb0f2ECVQTlRDamBkgDENCBG/FJobf/EGGb9lBbumGDolwsZmhWznNULHHXqXy/A8o73qIxr6n0dpMFMhhMKhb1In9+ome1w4X74UBvyV5zbKr0dIC9U7utsyebDT94W2jZ/e8BIjc33m4U8/uU8cxYfX3r/utoZz5UmNkeZOJ5TmmT6KnD3TEpwxa2XRQCLgY9fg4F2ttixGAwOKkQb5Ift1NlG55D6Xr345ZsjGzRz8pTvo0aEDS5J9O5poshxQO/JTKiz+i8vyjNA+/BI0yxhgHPprZdZyEdOGcPMmybjv45wF8kkQtsmQ9MrYMzh5plqYP5c42+O0F9x35zzGW3XLo21/6yZt9+dSuoPL7191XzHkfq4+vbsroopxOnUBPH8CdUDG/yqaTZZig3ThUd0ysjdYNwjCEwjD+qmspbnkrxc23UVv9Cx2HRnetRi8/Vluabmp4qhJSOP4MtT1PUX3lZ9T3PU04eQQJ6hjPi4AnEemxa1cyIp+LAr4SGSBqkcXrkIkV2KnjzZGp/bnphn5h/PNHPh5j2CuX/gxwF8LWHYZ//i3b+Jc3/E0+57+3NrayaUYW5nT6JHr6oEtoTPazc10q26tt8TqBalYdJH+RNLAqhGGIDUPUy2EWrCC/eguFDbdQWHsD+WUbCMZXu7P/zpFCq5TrlqGpfTSO76N+6AXq+5+jcehFwjOH0XrFuWsTUd/6GIZJDNtWEMdFHfVIMjWXxeuQ8eXYmdPNkbN7c5VG8I3SvUfez2feY3j2Idtu+KVpTokZTw2PrXxLaUE49Y1CPn9nbXRF04wuylE5iz11AJo18HJdKt6/kemn1qaihK2impYI8f8lkQg2DEni+UcX4S9aQ27ZBnLLriK3ZA3+xHK8kQWcLa4jnxP8yBBTHNDNQBmrHSGsThNOnyKYPEbz5AGaJ/bRPLmf4MwRF2DarDsgo28BG2lZ8XG4djvwcjFHfexfDgPIFTCL18HwQuz0iebI9MFcpRE8Mq359y4v7++Y8nWjgVRm5Du2+h/eXmpMnXog75v31YeXBYwv8ySoi54+iJYnXeCBmFgpDdRIJSsNkpjB9EyB2E7QhFFsdEZgixlCp4H9PFIYxpTGMKUJzPA4UhhGckNuS5kqGjaxtTK2Ou0OYCpPYWszLpo4DJBoUcYdYe+1RnIs3lVbVn0aeJEkiOOijnprkeEJZPE61C8oZ4+Gw7NH/GrTfn1SRj686t5XKzFmfTJ1dZsrQVKFVIb1f3Hd5/NGP94oTKAL14TieZ5On0LPHoWgBhIxQjsTtDVSOx61rFlVEkawmjowmvgwp9QzID4VzGq040fD1Gyjm1qwSQe4TZde9BFHkIzoblnt2et24DUTun3hdX30PYdcAZlYgYwtxYbN0Jw+4JXqZ6iGcl/p3iO/B1ms5qJ5Gc2ROhC5H1u9e8vv+ISf9Ysjw/XR5YGUJgxB3ej0CXTmNISNiBFSRXTxCaTvZxmiBTKQAjrLFGm1EeeRSJD2D160dbSkPo4di+7kdzoYM23MpcS8i7S9WMC7mquqAz5a2JGxpZArWJ09Y4dnDvuNarncFP+fjtx7+Ivx9H0usZ/pg0ETJlWKDEP5xEPhzCe2bC0Y/VzOM3dqaZzG8LJACiVDs2Z05hRaOQuNKsmBhuKlutg1sMOlJqmze1LSINZ/LXCzDJFWG+lnUSmkMmo1XrKdkGzBJjXCNaXPJXs0a3w/yUO6hG9381xpv2e2tY1NBHJDyMgiZHQR5IpW62Wbnz7q56pnaIT2kbLm/8nC//fAs3rPDm8ug68bnfO0+eGPbfff8YUnAoD63Zt/12D/lZ8vbKA4Qa20OJRCCcKmoToj1KbR2qw77dIGdACf6YBu0sDdyTCCajLuMkyhrXfTh0D1Gm2tkdu6bo3ulj7PghuBnwIw24p5jPr2a+OhuSFkaBiKEzA0qni+1dosQ+UTnl+dpNFo7LXi/VHx3iN/Alks5kvn5TdJi5xT/2zz2EReftuG4T/O5XJXURwjGBonLIyGeDlVGxqadaFZE5pVCBpuk4JN1VuzoyvdN5ldvW0juz3WID60OlEBvcCXFiNKG5Ad0iEqL8MEbWlbxQzOAOL5znj2C5AroLmikhtSMZ7VsCGmOu0V65NQnaJeb+zGy9076498afF/enk6rZJ7F9ifztdxBkDa03T4k3eWFlcP/5qo/agib8sPFUcYGoF8iaZfJDR5xfNtRgHDAPqwU5SnT8/uGPWaeaOtiG4ni6Z+S/q3tAkr6UgzUBvmaJ+qCmHDeGFT8sEspl6G2izVanVWsD9U439lkuGvrrr31Qpk+/x86IIwAGRtg+TeH1y/tlGv/6La8J2KbFfjry/k/WHjFyCXd5xv+mxQPqcO7RHDmLnXPpbT92OSLvf7vHMudVV1KtEGEDRoNhrUG42yseE+wT4BfL84MvYD+fTuA8kr56jre9EFY4CYEu/hsw9pWjSpqlT+xQ0rckF1rbV2tYosJgyW9znLgUE+fZomq9GXaft6JXuTkVQeGX7pk985loW6cWKcb+KY53mnjJFDzZADpc8fOyopCal3Ydi6Qy4k8JeE9C7Mwx/b7us9O16/s9bfoKT37PAe/th2P7KzLhpdcAnQi2KDha07hKnjArDzaPWSlX85U7xDmwO7EjfGpRrp/z958BMdN+4XDwAAAABJRU5ErkJggg=="
+          alt="Smouha Stock Icon"
+          class="w-8 h-8 rounded-lg shrink-0 shadow-sm"
+        />
+        <div class="flex items-center gap-2">
+          <h1 class="text-sm font-bold tracking-tight" style="color: var(--ui-text);">Smouha Stock</h1>
+          <span class="text-[11px] font-mono-num px-1.5 py-0.5 rounded font-semibold" style="background: var(--ui-primary-soft); color: var(--ui-primary);">DS 60</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-1.5">
+        <!-- Minimal Key Status + Timer Pill -->
+        <button id="btnLicensePopover" type="button" class="flex items-center gap-2 px-2.5 h-8 rounded-lg text-xs font-medium border transition-colors" style="background: var(--ui-surface); border-color: var(--ui-border); color: var(--ui-text);">
+          <span id="licenseDot" class="w-2 h-2 rounded-full" style="background: #F59E0B;"></span>
+          <span id="licenseStatusLabel" class="font-medium">Key</span>
+          <span style="color: var(--ui-border-strong);">·</span>
+          <span id="tokenTimerText" class="font-mono-num text-[11px]" style="color: var(--ui-text-secondary);">--:--:--</span>
+        </button>
+
+        <!-- Sound & Vibration Toggle -->
+        <button id="btnSoundToggle" type="button" aria-label="Toggle sound and vibration" class="w-8 h-8 rounded-lg flex items-center justify-center border transition-colors" style="background: var(--ui-surface); border-color: var(--ui-border); color: var(--ui-primary);">
+          <svg id="iconSoundOn" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M11 5L6 9H2v6h4l5 4V5zM15.54 8.46a5 5 0 010 7.07M19.07 4.93a10 10 0 010 14.14"></path>
+          </svg>
+          <svg id="iconSoundOff" class="w-4 h-4 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M11 5L6 9H2v6h4l5 4V5zM23 9l-6 6m0-6l6 6"></path>
+          </svg>
+        </button>
+
+        <!-- Theme Switcher -->
+        <button id="btnThemeToggle" type="button" aria-label="Switch theme" class="w-8 h-8 rounded-lg flex items-center justify-center border transition-colors" style="background: var(--ui-surface); border-color: var(--ui-border); color: var(--ui-text-secondary);">
+          <svg id="iconSun" class="w-4 h-4 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path stroke-linecap="round" d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41m11.32-11.32l1.41-1.41"></path>
+          </svg>
+          <svg id="iconMoon" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Clean License Panel (Server-Controlled Only: Key Input + Status + Timer) -->
+    <section id="licensePanel" class="ui-card p-3.5 hidden">
+      <div class="flex items-center justify-between mb-2.5">
+        <div class="flex items-center gap-2">
+          <span id="popoverDot" class="w-2 h-2 rounded-full" style="background: #F59E0B;"></span>
+          <span id="popoverStatusText" class="text-xs font-semibold">Not Activated</span>
+          <span id="serverRoleBadge" class="text-[11px] font-semibold px-2 py-0.5 rounded" style="background: var(--ui-primary-soft); color: var(--ui-primary);">Full Edit</span>
+        </div>
+        <span id="popoverTimerText" class="font-mono-num text-xs font-medium" style="color: var(--ui-text-secondary);">--:--:--</span>
+      </div>
+
+      <div class="flex items-center gap-1.5">
+        <input
+          id="inputLicenseKey"
+          type="text"
+          autocomplete="off"
+          spellcheck="false"
+          placeholder="SmouhaMob-XXXX-XXXX"
+          class="ui-input flex-1 h-9 px-2.5 rounded-lg font-mono-num text-xs font-semibold border focus:outline-none"
+          style="background: var(--ui-surface-subtle); border-color: var(--ui-border); color: var(--ui-text);"
+        />
+        <button
+          id="btnConnectLiveKey"
+          type="button"
+          class="px-3.5 h-9 rounded-lg text-xs font-semibold text-white shrink-0"
+          style="background: var(--ui-primary);"
+        >
+          Activate
+        </button>
+      </div>
+    </section>
+
+    <!-- Search & Real Camera Barcode Scanner Bar -->
+    <section class="ui-card p-2.5">
+      <div class="flex items-center gap-2">
+        <div class="relative flex-1 flex items-center">
+          <svg class="w-4 h-4 absolute left-3 pointer-events-none" style="color: var(--ui-text-muted);" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 10.5a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z"></path>
+          </svg>
+          <input
+            id="scanSearchInput"
+            type="text"
+            autocomplete="off"
+            spellcheck="false"
+            placeholder="Scan barcode or enter SKU..."
+            class="ui-input w-full h-11 pl-9 pr-16 rounded-lg text-sm font-medium border-0 focus:outline-none"
+            style="background: var(--ui-surface-subtle); color: var(--ui-text);"
+          />
+          <button id="btnClearInput" type="button" aria-label="Clear search" class="w-7 h-7 rounded-md flex items-center justify-center absolute right-9 hidden" style="color: var(--ui-text-muted);">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+          <button id="btnExecSearch" type="button" aria-label="Search SKU" class="w-8 h-8 rounded-md flex items-center justify-center absolute right-1 font-semibold text-xs" style="color: var(--ui-primary);">
+            Go
+          </button>
+        </div>
+
+        <button
+          id="btnToggleCamera"
+          type="button"
+          class="ui-btn px-3.5 h-11 rounded-lg text-xs font-semibold shrink-0"
+          style="background: var(--ui-primary); color: var(--ui-primary-fg);"
+        >
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 7V5a2 2 0 012-2h2m10 0h2a2 2 0 012 2v2m0 10v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2M7 12h10"></path>
+          </svg>
+          <span id="cameraBtnLabel">Scan</span>
+        </button>
+      </div>
+
+      <!-- Real Live Camera Barcode Viewfinder (Full Width, Continuous Hardware Decoding) -->
+      <div id="cameraDrawer" class="hidden mt-2.5 rounded-xl overflow-hidden border relative" style="background: #0F0E0D; border-color: var(--ui-border);">
+        <div class="relative h-52 w-full flex items-center justify-center overflow-hidden">
+          <video id="cameraVideo" class="w-full h-full object-cover" playsinline muted autoplay></video>
+
+          <!-- Centered Laser Reticle -->
+          <div class="absolute inset-0 pointer-events-none flex items-center justify-center">
+            <div class="w-60 h-28 rounded-xl border-2 border-orange-400/60 relative flex items-center justify-center">
+              <div class="w-full h-0.5 bg-orange-500 shadow-[0_0_10px_#f97316] laser-line"></div>
+            </div>
+          </div>
+
+          <div class="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between">
+            <span id="cameraStatusBadge" class="px-2.5 py-1 rounded-md text-[11px] font-mono-num bg-black/70 text-white/95">
+              Point camera at barcode...
+            </span>
+            <div class="flex items-center gap-1.5">
+              <button id="btnCameraZoom" type="button" class="px-2.5 py-1 rounded-md text-[11px] font-mono-num font-semibold bg-black/70 text-white">
+                1x
+              </button>
+              <button id="btnCameraTorch" type="button" class="px-2.5 py-1 rounded-md text-[11px] font-medium bg-black/70 text-white">
+                Torch
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Ready-to-Work Empty State (Shown Before First Product Scan/Search) -->
+    <section id="emptyProductState" class="ui-card p-6 text-center space-y-2">
+      <div class="w-11 h-11 rounded-2xl mx-auto flex items-center justify-center" style="background: var(--ui-primary-soft); color: var(--ui-primary);">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 7V5a2 2 0 012-2h2m10 0h2a2 2 0 012 2v2m0 10v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2M7 12h10"></path>
+        </svg>
+      </div>
+      <div class="text-sm font-bold" style="color: var(--ui-text);">Ready to Scan</div>
+      <p class="text-xs leading-relaxed max-w-xs mx-auto" style="color: var(--ui-text-secondary);">
+        Scan a product barcode with the camera or enter a SKU above to fetch live DMart stock.
+      </p>
+    </section>
+
+    <!-- Active Product Card (Hidden Until Real Product Is Loaded) -->
+    <section id="productCardSection" class="ui-card p-4 hidden">
+      <!-- Top Product Identity -->
+      <div class="flex items-start gap-3">
+        <button
+          id="btnOpenImageZoom"
+          type="button"
+          aria-label="Zoom product image"
+          class="prod-thumb-btn w-16 h-16 rounded-xl border shrink-0 flex items-center justify-center p-1"
+          style="background: var(--ui-surface-subtle); border-color: var(--ui-border);"
+        >
+          <img id="prodImage" src="" alt="Product" class="max-w-full max-h-full object-contain" />
+          <span class="zoom-badge absolute bottom-1 right-1 w-5 h-5 rounded-md flex items-center justify-center bg-black/65 text-white">
+            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M10.5 7.5v6m3-3h-6M17 10.5a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z"></path>
+            </svg>
+          </span>
+        </button>
+
+        <div class="flex-1 min-w-0">
+          <h2 id="prodName" class="text-[15px] font-semibold leading-snug break-words" style="color: var(--ui-text);">
+            —
+          </h2>
+
+          <!-- Copyable SKU & Barcode Chips (No EAN Prefix, No Latency Pill) -->
+          <div class="flex flex-wrap items-center gap-1.5 mt-2">
+            <button id="btnCopySku" type="button" class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-mono-num border transition-colors" style="background: var(--ui-surface-subtle); border-color: var(--ui-border); color: var(--ui-text);">
+              <span style="color: var(--ui-text-muted);">SKU</span>
+              <span id="prodSku" class="font-semibold">—</span>
+            </button>
+
+            <button id="btnCopyBarcode" type="button" class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-mono-num border transition-colors" style="background: var(--ui-surface-subtle); border-color: var(--ui-border); color: var(--ui-text);">
+              <span id="prodBarcode" class="font-semibold">—</span>
+            </button>
+
+            <span id="prodStatusPill" class="text-xs font-semibold px-2 py-0.5 rounded-md" style="background: var(--ui-add-soft); color: var(--ui-add);">
+              Active
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 1: Price | On Hand | Reserved (3 Equal Boxes Side-by-Side) -->
+      <div class="grid grid-cols-3 gap-2 mt-4">
+        <div class="p-3 rounded-xl border" style="background: var(--ui-surface-subtle); border-color: var(--ui-border);">
+          <div class="text-[11px] font-medium" style="color: var(--ui-text-secondary);">Price</div>
+          <div id="prodPrice" class="font-mono-num text-lg font-bold tracking-tight mt-1" style="color: var(--ui-text);">—</div>
+        </div>
+
+        <div class="p-3 rounded-xl border" style="background: var(--ui-primary-soft); border-color: var(--ui-primary-border);">
+          <div class="text-[11px] font-semibold" style="color: var(--ui-primary);">On Hand</div>
+          <div id="prodOnHand" class="font-mono-num text-2xl font-bold tracking-tight mt-0.5" style="color: var(--ui-primary);">—</div>
+        </div>
+
+        <div class="p-3 rounded-xl border" style="background: var(--ui-surface-subtle); border-color: var(--ui-border);">
+          <div class="text-[11px] font-medium" style="color: var(--ui-text-secondary);">Reserved</div>
+          <div id="prodReserved" class="font-mono-num text-lg font-bold tracking-tight mt-1" style="color: var(--ui-text);">—</div>
+        </div>
+      </div>
+
+      <!-- Row 2: Shelf | Expiry (2 Boxes Side-by-Side Directly Below) -->
+      <div class="grid grid-cols-2 gap-2 mt-2">
+        <div class="p-3 rounded-xl border flex items-center justify-between" style="background: var(--ui-surface-subtle); border-color: var(--ui-border);">
+          <span class="text-xs font-medium" style="color: var(--ui-text-secondary);">Shelf</span>
+          <span id="prodLocation" class="font-mono-num text-sm font-bold tracking-tight" style="color: var(--ui-text);">—</span>
+        </div>
+
+        <div class="p-3 rounded-xl border flex items-center justify-between" style="background: var(--ui-surface-subtle); border-color: var(--ui-border);">
+          <span class="text-xs font-medium" style="color: var(--ui-text-secondary);">Expiry</span>
+          <span id="prodExpiry" class="font-mono-num text-sm font-bold tracking-tight" style="color: var(--ui-text);">—</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Streamlined Stock Adjustment Section: Direct (−) Red & (+) Green Triggers -->
+    <section id="adjustmentCard" class="ui-card p-4 hidden">
+      <!-- View-Only Banner (Shown When Server Assigns VIEW_ONLY Role) -->
+      <div id="viewOnlyNotice" class="hidden py-2.5 px-3 rounded-lg text-xs font-medium text-center" style="background: var(--ui-surface-subtle); color: var(--ui-text-secondary);">
+        View-only key. Stock editing is disabled for this device.
+      </div>
+
+      <!-- Direct Action Controls -->
+      <div id="editControlsContainer" class="space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold" style="color: var(--ui-text);">Stock Adjustment</span>
+          <span class="text-[11px]" style="color: var(--ui-text-muted);">Enter quantity, then tap − or +</span>
+        </div>
+
+        <!-- Direct (−) Red Button | Manual Quantity Input | (+) Green Button -->
+        <div class="grid grid-cols-12 gap-2 items-center">
+          <button
+            id="btnTriggerDecrease"
+            type="button"
+            aria-label="Remove quantity from stock"
+            class="ui-btn col-span-4 h-12 rounded-xl text-white font-bold text-base shadow-sm"
+            style="background: var(--ui-remove);"
+          >
+            <span class="font-mono-num text-xl leading-none">−</span>
+            <span class="text-xs font-semibold">Remove</span>
+          </button>
+
+          <div class="col-span-4">
+            <input
+              id="qtyInput"
+              type="number"
+              min="1"
+              max="9999"
+              value="1"
+              aria-label="Quantity to add or remove"
+              class="ui-input w-full h-12 rounded-xl text-center font-mono-num text-lg font-bold border focus:outline-none"
+              style="background: var(--ui-surface-subtle); border-color: var(--ui-border-strong); color: var(--ui-text);"
+            />
+          </div>
+
+          <button
+            id="btnTriggerIncrease"
+            type="button"
+            aria-label="Add quantity to stock"
+            class="ui-btn col-span-4 h-12 rounded-xl text-white font-bold text-base shadow-sm"
+            style="background: var(--ui-add);"
+          >
+            <span class="font-mono-num text-xl leading-none">+</span>
+            <span class="text-xs font-semibold">Add</span>
+          </button>
+        </div>
+
+        <!-- Optional Note Input -->
+        <div>
+          <input
+            id="noteInput"
+            type="text"
+            maxlength="255"
+            placeholder="Optional note (e.g. Damaged box on aisle C01)..."
+            class="ui-input w-full h-10 px-3 rounded-xl text-xs font-medium border focus:outline-none"
+            style="background: var(--ui-surface-subtle); border-color: var(--ui-border); color: var(--ui-text);"
+          />
+        </div>
+      </div>
+    </section>
+
+    <!-- Bottom Card: Movements | Recent (Max 8) | Diagnostic Logs -->
+    <section class="ui-card p-4 flex-1 flex flex-col">
+      <div class="flex items-center justify-between gap-2 mb-3">
+        <div class="flex items-center gap-1 p-0.5 rounded-lg" style="background: var(--ui-surface-subtle);">
+          <button id="tabBtnMovements" type="button" class="px-2.5 py-1 rounded-md text-xs font-semibold transition-colors">
+            Movements
+          </button>
+          <button id="tabBtnRecent" type="button" class="px-2.5 py-1 rounded-md text-xs font-semibold transition-colors">
+            Recent (<span id="recentCountBadge" class="font-mono-num">0</span>)
+          </button>
+          <button id="tabBtnLogs" type="button" class="px-2.5 py-1 rounded-md text-xs font-semibold transition-colors">
+            Logs (<span id="logsCountBadge" class="font-mono-num">0</span>)
+          </button>
+        </div>
+
+        <div id="logsToolbar" class="hidden items-center gap-1.5">
+          <button id="btnCopyLogs" type="button" class="text-[11px] font-semibold px-2 py-1 rounded border" style="background: var(--ui-surface-subtle); border-color: var(--ui-border); color: var(--ui-primary);">
+            Copy
+          </button>
+          <button id="btnClearLogs" type="button" class="text-[11px] font-medium px-2 py-1 rounded border" style="background: var(--ui-surface-subtle); border-color: var(--ui-border); color: var(--ui-text-secondary);">
+            Clear
+          </button>
+        </div>
+      </div>
+
+      <!-- Product Movements List -->
+      <div id="movementsView" class="space-y-2"></div>
+
+      <!-- Recent Items (Max 8 Previously Opened Products) -->
+      <div id="recentView" class="space-y-2 hidden"></div>
+
+      <!-- Diagnostic Request & Error Logs -->
+      <div id="logsView" class="space-y-1.5 hidden max-h-64 overflow-y-auto font-mono-num text-[11px]"></div>
+    </section>
+  </div>
+
+  <!-- Centered Stock Adjustment Confirmation Modal -->
+  <div
+    id="confirmModalOverlay"
+    class="fixed inset-0 z-50 hidden items-center justify-center p-4"
+    style="background: var(--ui-modal-backdrop); backdrop-filter: blur(2px);"
+  >
+    <div class="ui-card modal-card-anim max-w-sm w-full p-5 space-y-4">
+      <div class="flex items-start justify-between gap-3">
+        <div class="flex items-center gap-2.5">
+          <div id="modalBadgeIcon" class="w-9 h-9 rounded-xl flex items-center justify-center font-mono-num text-lg font-bold">
+            −
+          </div>
+          <div>
+            <h3 id="modalTitle" class="text-sm font-bold" style="color: var(--ui-text);">
+              Confirm Stock Removal
+            </h3>
+            <p id="modalProductSub" class="text-xs truncate max-w-[210px]" style="color: var(--ui-text-secondary);">
+              —
+            </p>
+          </div>
+        </div>
+
+        <span id="modalDeltaPill" class="font-mono-num text-xs font-bold px-2.5 py-1 rounded-lg">
+          −1
+        </span>
+      </div>
+
+      <!-- Stock Balance Preview Box -->
+      <div class="p-3 rounded-xl border flex items-center justify-between" style="background: var(--ui-surface-subtle); border-color: var(--ui-border);">
+        <span class="text-xs font-medium" style="color: var(--ui-text-secondary);">On Hand Balance</span>
+        <div class="font-mono-num text-sm font-bold flex items-center gap-2">
+          <span id="modalBeforeQty" style="color: var(--ui-text-secondary);">0</span>
+          <span style="color: var(--ui-text-muted);">→</span>
+          <span id="modalAfterQty" class="text-base">0</span>
+        </div>
+      </div>
+
+      <!-- Official DMart Reason Selector inside Confirmation Modal -->
+      <div class="space-y-1.5">
+        <label for="modalReasonSelect" class="block text-[11px] font-semibold" style="color: var(--ui-text-secondary);">
+          DMart Reason
+        </label>
+        <select
+          id="modalReasonSelect"
+          class="ui-select w-full h-11 px-3 rounded-xl text-xs font-medium border focus:outline-none"
+          style="background: var(--ui-surface-subtle); border-color: var(--ui-border); color: var(--ui-text);"
+        ></select>
+      </div>
+
+      <!-- Optional Note inside Confirmation Modal -->
+      <div class="space-y-1.5">
+        <label for="modalNoteInput" class="block text-[11px] font-semibold" style="color: var(--ui-text-secondary);">
+          Optional Note
+        </label>
+        <input
+          id="modalNoteInput"
+          type="text"
+          maxlength="255"
+          placeholder="Add optional reason note..."
+          class="ui-input w-full h-10 px-3 rounded-xl text-xs font-medium border focus:outline-none"
+          style="background: var(--ui-surface-subtle); border-color: var(--ui-border); color: var(--ui-text);"
+        />
+      </div>
+
+      <!-- Cancel & Dynamic Color Confirm Button (Red for Remove / Green for Add) -->
+      <div class="grid grid-cols-2 gap-2.5 pt-1">
+        <button
+          id="btnModalCancel"
+          type="button"
+          class="ui-btn h-11 rounded-xl text-xs font-semibold border"
+          style="background: var(--ui-surface-subtle); border-color: var(--ui-border); color: var(--ui-text);"
+        >
+          Cancel
+        </button>
+        <button
+          id="btnModalConfirm"
+          type="button"
+          class="ui-btn h-11 rounded-xl text-xs font-semibold text-white shadow-sm"
+          style="background: var(--ui-remove);"
+        >
+          Confirm Remove
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Centered Product Image Lightbox & Zoom Modal -->
+  <div
+    id="imageZoomModal"
+    class="fixed inset-0 z-50 hidden items-center justify-center p-4"
+    style="background: var(--ui-modal-backdrop); backdrop-filter: blur(3px);"
+  >
+    <div class="ui-card modal-card-anim max-w-sm w-full p-4 space-y-3">
+      <div class="flex items-center justify-between gap-2">
+        <div class="min-w-0">
+          <div id="zoomModalTitle" class="text-xs font-bold truncate" style="color: var(--ui-text);">Product Image</div>
+          <div id="zoomModalSku" class="text-[11px] font-mono-num" style="color: var(--ui-text-secondary);">—</div>
+        </div>
+        <button
+          id="btnCloseImageZoom"
+          type="button"
+          aria-label="Close image zoom"
+          class="w-8 h-8 rounded-lg flex items-center justify-center border"
+          style="background: var(--ui-surface-subtle); border-color: var(--ui-border); color: var(--ui-text);"
+        >
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Zoomable Viewport -->
+      <div
+        id="zoomViewport"
+        class="w-full h-72 rounded-xl border overflow-hidden flex items-center justify-center relative select-none cursor-zoom-in"
+        style="background: var(--ui-surface-subtle); border-color: var(--ui-border);"
+      >
+        <img
+          id="zoomModalImg"
+          src=""
+          alt="Zoomed Product"
+          class="max-w-full max-h-full object-contain transition-transform duration-150 ease-out"
+          style="transform: scale(1);"
+        />
+      </div>
+
+      <!-- Zoom Level Controls -->
+      <div class="flex items-center justify-between gap-2">
+        <span class="text-[11px]" style="color: var(--ui-text-muted);">Tap image or choose zoom level</span>
+        <div class="flex items-center gap-1">
+          <button type="button" data-zoom-level="1" class="zoom-lvl-btn px-2.5 py-1 rounded-lg font-mono-num text-xs font-semibold border">1x</button>
+          <button type="button" data-zoom-level="2" class="zoom-lvl-btn px-2.5 py-1 rounded-lg font-mono-num text-xs font-semibold border">2x</button>
+          <button type="button" data-zoom-level="3" class="zoom-lvl-btn px-2.5 py-1 rounded-lg font-mono-num text-xs font-semibold border">3x</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Minimal Toast Notification -->
+  <div id="toastBox" class="fixed bottom-4 left-1/2 -translate-x-1/2 px-3.5 py-2 rounded-xl text-xs font-semibold shadow-lg pointer-events-none opacity-0 transition-opacity duration-150 z-50" style="background: var(--ui-primary); color: #FFFFFF;">
+    <span id="toastMessage">Updated</span>
+  </div>
+
+  <!-- Strict Server-Enforced Blocked Overlay (Cannot Be Bypassed Locally!) -->
+  <div id="blockedOverlay" class="fixed inset-0 z-50 hidden flex-col items-center justify-center p-6 text-center" style="background: var(--ui-bg);">
+    <div class="ui-card max-w-xs w-full p-6 space-y-4">
+      <div class="w-10 h-10 rounded-full mx-auto flex items-center justify-center" style="background: var(--ui-remove-soft); color: var(--ui-remove);">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M5.07 19h13.86c1.54 0 2.5-1.67 1.73-3L13.73 4c-.77-1.33-2.69-1.33-3.46 0L3.34 16c-.77 1.33.19 3 1.73 3z"></path>
+        </svg>
+      </div>
+      <p id="blockedMessageText" class="text-sm font-medium" style="color: var(--ui-text);">
+        This license key has been deactivated by the admin.
+      </p>
+      <input
+        id="blockedKeyInput"
+        type="text"
+        autocomplete="off"
+        spellcheck="false"
+        placeholder="SmouhaMob-XXXX-XXXX"
+        class="ui-input w-full h-10 px-3 rounded-xl font-mono-num text-xs font-semibold border text-center focus:outline-none"
+        style="background: var(--ui-surface-subtle); border-color: var(--ui-border); color: var(--ui-text);"
+      />
+      <div id="blockedVerifyStatus" class="text-xs font-medium min-h-[16px]" style="color: var(--ui-remove);"></div>
+      <button id="btnVerifyUnblockServer" type="button" class="ui-btn w-full text-xs font-semibold" style="background: var(--ui-primary); color: var(--ui-primary-fg);">
+        Check Status with Server
+      </button>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      const SMOUHA_GATEWAY_URL = atob('aHR0cHM6Ly9zbW91aGEtcGFwcGVyLnN1bnRvbjg1Ny53b3JrZXJzLmRldg==');
+      const UNSAFE_LOCATION_TYPES = new Set(['RECEIVING', 'PUTAWAY', 'STAGING']);
+      const RECENT_STORAGE_KEY = 'smouha_stock_recent_v2';
+      const MAX_RECENT_ITEMS = 8;
+
+      // Official DMart initial-payload adjustment reasons (without "(Count Correction)")
+      const DMART_REASONS = {
+        DECREASE: [
+          { code: 'STOCK_SUBTRACTION', label: 'Stock Subtraction' },
+          { code: 'PRODUCT_DAMAGED', label: 'Product Damaged' },
+          { code: 'PRODUCT_EXPIRED', label: 'Product Expired' },
+          { code: 'CUSTOMER_REPLACEMENT', label: 'Customer Replacement' },
+          { code: 'QUALITY_ISSUE', label: 'Quality Issue' },
+          { code: 'THEFT', label: 'Theft / Missing' },
+          { code: 'STORE_TRANSFER_SUBTRACTION', label: 'Store Transfer Out' },
+          { code: 'SUPPLIER_RETURN', label: 'Supplier Return' },
+          { code: 'PACK_TO_UNITS', label: 'Break Pack to Units' },
+          { code: 'SYSTEM_ERROR', label: 'System Error' },
+          { code: 'OTHER', label: 'Other' }
+        ],
+        INCREASE: [
+          { code: 'STOCK_ADDITION', label: 'Stock Addition' },
+          { code: 'STORE_TRANSFER_ADDITION', label: 'Store Transfer In' },
+          { code: 'UNITS_TO_PACKS', label: 'Combine Units to Pack' },
+          { code: 'INTERNAL_VENDOR_ADDITION', label: 'Internal Vendor Addition' },
+          { code: 'SURPRISE_PACKAGE', label: 'Surprise Package' },
+          { code: 'DONATION', label: 'Donation' },
+          { code: 'OTHER', label: 'Other' }
+        ]
+      };
+
+      const state = {
+        theme: 'stone',
+        soundEnabled: true,
+        currentProduct: null,
+        recentItems: [],
+        diagnosticLogs: [],
+        role: 'FULL',
+        licenseActive: false,
+        licenseKey: '',
+        warehouseId: 'd24a9f96-f6bc-43b0-af78-b7067f0c901c',
+        remainingSeconds: 0,
+        activeTab: 'MOVEMENTS', // 'MOVEMENTS' | 'RECENT' | 'LOGS'
+        pendingModal: null,
+        imageZoomLevel: 1,
+        cameraOpen: false,
+        cameraStream: null,
+        cameraZoom: 1,
+        torchOn: false,
+        scannerLoopTimer: null,
+        zxingReader: null,
+        scanLock: false
+      };
+
+      function addLog(tag, message, detailObj) {
+        const ts = new Date().toTimeString().slice(0, 8);
+        let detailStr = '';
+        if (detailObj !== undefined && detailObj !== null) {
+          try {
+            detailStr = typeof detailObj === 'string' ? detailObj : JSON.stringify(detailObj);
+          } catch (e) {
+            detailStr = String(detailObj);
+          }
+        }
+        state.diagnosticLogs.unshift({
+          ts,
+          tag,
+          message,
+          detail: detailStr.slice(0, 350)
+        });
+        if (state.diagnosticLogs.length > 120) {
+          state.diagnosticLogs.length = 120;
+        }
+        if (el && el.logsCountBadge) {
+          el.logsCountBadge.textContent = String(state.diagnosticLogs.length);
+          if (state.activeTab === 'LOGS') renderTabs();
+        }
+      }
+
+      function getDeviceId() {
+        try {
+          if (window.SmouhaNative && typeof window.SmouhaNative.getDeviceId === 'function') {
+            return window.SmouhaNative.getDeviceId();
+          }
+        } catch (e) {}
+        try {
+          let savedId = localStorage.getItem('smouha_mob_dev_id');
+          if (!savedId) {
+            const rnd = () => Math.floor(0x1000 + Math.random() * 0xEFFF).toString(16).toUpperCase();
+            savedId = `SMP-MOB-${rnd()}-${rnd()}`;
+            localStorage.setItem('smouha_mob_dev_id', savedId);
+          }
+          return savedId;
+        } catch (e) {
+          return 'SMP-MOB-0001-A001';
+        }
+      }
+
+      function loadRecentFromStorage() {
+        try {
+          const raw = localStorage.getItem(RECENT_STORAGE_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) {
+              state.recentItems = parsed.slice(0, MAX_RECENT_ITEMS);
+            }
+          }
+        } catch (e) {}
+      }
+
+      function saveProductToRecent(prod) {
+        if (!prod || !prod.sku) return;
+        const summary = {
+          id: prod.id,
+          sku: prod.sku,
+          barcode: prod.barcode,
+          name: prod.name,
+          onHand: prod.onHand,
+          price: prod.price,
+          location: prod.location,
+          expiry: prod.expiry,
+          image: prod.image,
+          openedAt: new Date().toTimeString().slice(0, 5)
+        };
+        state.recentItems = state.recentItems.filter((item) => item.sku !== prod.sku);
+        state.recentItems.unshift(summary);
+        if (state.recentItems.length > MAX_RECENT_ITEMS) {
+          state.recentItems.length = MAX_RECENT_ITEMS;
+        }
+        try {
+          localStorage.setItem(RECENT_STORAGE_KEY, JSON.stringify(state.recentItems));
+        } catch (e) {}
+      }
+
+      function triggerHaptic(type) {
+        if (!state.soundEnabled) return;
+        const patterns = {
+          scan: [20],
+          prompt: [14],
+          add: [20, 35, 30],
+          remove: [35, 45, 35],
+          block: [55, 40, 55]
+        };
+        const pat = patterns[type] || [18];
+        try {
+          if (window.SmouhaNative && typeof window.SmouhaNative.vibrate === 'function') {
+            window.SmouhaNative.vibrate(JSON.stringify(pat));
+          } else if (navigator.vibrate) {
+            navigator.vibrate(pat);
+          }
+        } catch (e) {}
+      }
+
+      let audioCtx = null;
+      function getAudioContext() {
+        if (!audioCtx) {
+          const Ctx = window.AudioContext || window.webkitAudioContext;
+          if (Ctx) audioCtx = new Ctx();
+        }
+        if (audioCtx && audioCtx.state === 'suspended') {
+          audioCtx.resume().catch(() => {});
+        }
+        return audioCtx;
+      }
+
+      function playFeedback(type) {
+        triggerHaptic(type);
+        if (!state.soundEnabled) return;
+        const ctx = getAudioContext();
+        if (!ctx) return;
+
+        const now = ctx.currentTime;
+        if (type === 'scan') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(1850, now);
+          osc.frequency.setValueAtTime(2450, now + 0.032);
+          gain.gain.setValueAtTime(0.14, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.085);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.09);
+        } else if (type === 'prompt') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(740, now);
+          gain.gain.setValueAtTime(0.07, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.04);
+        } else if (type === 'add') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(587.33, now);
+          osc.frequency.setValueAtTime(880.0, now + 0.06);
+          gain.gain.setValueAtTime(0.18, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.165);
+        } else if (type === 'remove') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(523.25, now);
+          osc.frequency.setValueAtTime(369.99, now + 0.065);
+          gain.gain.setValueAtTime(0.18, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.17);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.175);
+        }
+      }
+
+      const el = {
+        btnLicensePopover: document.getElementById('btnLicensePopover'),
+        licensePanel: document.getElementById('licensePanel'),
+        licenseDot: document.getElementById('licenseDot'),
+        licenseStatusLabel: document.getElementById('licenseStatusLabel'),
+        tokenTimerText: document.getElementById('tokenTimerText'),
+        popoverDot: document.getElementById('popoverDot'),
+        popoverStatusText: document.getElementById('popoverStatusText'),
+        serverRoleBadge: document.getElementById('serverRoleBadge'),
+        popoverTimerText: document.getElementById('popoverTimerText'),
+        inputLicenseKey: document.getElementById('inputLicenseKey'),
+        btnConnectLiveKey: document.getElementById('btnConnectLiveKey'),
+        btnSoundToggle: document.getElementById('btnSoundToggle'),
+        iconSoundOn: document.getElementById('iconSoundOn'),
+        iconSoundOff: document.getElementById('iconSoundOff'),
+        btnThemeToggle: document.getElementById('btnThemeToggle'),
+        iconSun: document.getElementById('iconSun'),
+        iconMoon: document.getElementById('iconMoon'),
+        scanSearchInput: document.getElementById('scanSearchInput'),
+        btnClearInput: document.getElementById('btnClearInput'),
+        btnExecSearch: document.getElementById('btnExecSearch'),
+        btnToggleCamera: document.getElementById('btnToggleCamera'),
+        cameraBtnLabel: document.getElementById('cameraBtnLabel'),
+        cameraDrawer: document.getElementById('cameraDrawer'),
+        cameraVideo: document.getElementById('cameraVideo'),
+        cameraStatusBadge: document.getElementById('cameraStatusBadge'),
+        btnCameraZoom: document.getElementById('btnCameraZoom'),
+        btnCameraTorch: document.getElementById('btnCameraTorch'),
+        emptyProductState: document.getElementById('emptyProductState'),
+        productCardSection: document.getElementById('productCardSection'),
+        btnOpenImageZoom: document.getElementById('btnOpenImageZoom'),
+        prodImage: document.getElementById('prodImage'),
+        prodName: document.getElementById('prodName'),
+        prodSku: document.getElementById('prodSku'),
+        prodBarcode: document.getElementById('prodBarcode'),
+        prodPrice: document.getElementById('prodPrice'),
+        prodOnHand: document.getElementById('prodOnHand'),
+        prodLocation: document.getElementById('prodLocation'),
+        prodExpiry: document.getElementById('prodExpiry'),
+        prodReserved: document.getElementById('prodReserved'),
+        prodStatusPill: document.getElementById('prodStatusPill'),
+        btnCopySku: document.getElementById('btnCopySku'),
+        btnCopyBarcode: document.getElementById('btnCopyBarcode'),
+        adjustmentCard: document.getElementById('adjustmentCard'),
+        viewOnlyNotice: document.getElementById('viewOnlyNotice'),
+        editControlsContainer: document.getElementById('editControlsContainer'),
+        btnTriggerDecrease: document.getElementById('btnTriggerDecrease'),
+        btnTriggerIncrease: document.getElementById('btnTriggerIncrease'),
+        qtyInput: document.getElementById('qtyInput'),
+        noteInput: document.getElementById('noteInput'),
+        confirmModalOverlay: document.getElementById('confirmModalOverlay'),
+        modalBadgeIcon: document.getElementById('modalBadgeIcon'),
+        modalTitle: document.getElementById('modalTitle'),
+        modalProductSub: document.getElementById('modalProductSub'),
+        modalDeltaPill: document.getElementById('modalDeltaPill'),
+        modalBeforeQty: document.getElementById('modalBeforeQty'),
+        modalAfterQty: document.getElementById('modalAfterQty'),
+        modalReasonSelect: document.getElementById('modalReasonSelect'),
+        modalNoteInput: document.getElementById('modalNoteInput'),
+        btnModalCancel: document.getElementById('btnModalCancel'),
+        btnModalConfirm: document.getElementById('btnModalConfirm'),
+        imageZoomModal: document.getElementById('imageZoomModal'),
+        zoomModalTitle: document.getElementById('zoomModalTitle'),
+        zoomModalSku: document.getElementById('zoomModalSku'),
+        btnCloseImageZoom: document.getElementById('btnCloseImageZoom'),
+        zoomViewport: document.getElementById('zoomViewport'),
+        zoomModalImg: document.getElementById('zoomModalImg'),
+        tabBtnMovements: document.getElementById('tabBtnMovements'),
+        tabBtnRecent: document.getElementById('tabBtnRecent'),
+        tabBtnLogs: document.getElementById('tabBtnLogs'),
+        recentCountBadge: document.getElementById('recentCountBadge'),
+        logsCountBadge: document.getElementById('logsCountBadge'),
+        logsToolbar: document.getElementById('logsToolbar'),
+        btnCopyLogs: document.getElementById('btnCopyLogs'),
+        btnClearLogs: document.getElementById('btnClearLogs'),
+        movementsView: document.getElementById('movementsView'),
+        recentView: document.getElementById('recentView'),
+        logsView: document.getElementById('logsView'),
+        toastBox: document.getElementById('toastBox'),
+        toastMessage: document.getElementById('toastMessage'),
+        blockedOverlay: document.getElementById('blockedOverlay'),
+        blockedMessageText: document.getElementById('blockedMessageText'),
+        blockedKeyInput: document.getElementById('blockedKeyInput'),
+        blockedVerifyStatus: document.getElementById('blockedVerifyStatus'),
+        btnVerifyUnblockServer: document.getElementById('btnVerifyUnblockServer')
+      };
+
+      let toastTimer = null;
+
+      function showToast(msg, bgOverride) {
+        el.toastMessage.textContent = msg;
+        el.toastBox.style.background = bgOverride || 'var(--ui-primary)';
+        el.toastBox.style.opacity = '1';
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+          el.toastBox.style.opacity = '0';
+        }, 2000);
+      }
+
+      function formatHMS(totalSec) {
+        const s = Math.max(0, totalSec);
+        const hrs = String(Math.floor(s / 3600)).padStart(2, '0');
+        const mins = String(Math.floor((s % 3600) / 60)).padStart(2, '0');
+        const secs = String(s % 60).padStart(2, '0');
+        return `${hrs}:${mins}:${secs}`;
+      }
+
+      function copyText(value, label) {
+        if (!value || value === '—') return;
+        triggerHaptic('prompt');
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(value).then(() => showToast(`Copied ${label}: ${value}`)).catch(() => fallbackCopy(value, label));
+        } else {
+          fallbackCopy(value, label);
+        }
+      }
+
+      function fallbackCopy(value, label) {
+        const ta = document.createElement('textarea');
+        ta.value = value;
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); } catch (e) {}
+        document.body.removeChild(ta);
+        showToast(`Copied ${label}: ${value}`);
+      }
+
+      function updateLicenseHeaderUI() {
+        if (state.licenseActive) {
+          el.licenseDot.style.background = 'var(--ui-add)';
+          el.popoverDot.style.background = 'var(--ui-add)';
+          el.licenseStatusLabel.textContent = 'Active';
+          el.popoverStatusText.textContent = 'Key Active';
+        } else {
+          el.licenseDot.style.background = '#F59E0B';
+          el.popoverDot.style.background = '#F59E0B';
+          el.licenseStatusLabel.textContent = 'Activate';
+          el.popoverStatusText.textContent = 'Key Required';
+        }
+        el.serverRoleBadge.textContent = state.role === 'VIEW_ONLY' ? 'View Only' : 'Full Edit';
+      }
+
+      function enforceAdminBlockOverlay(message) {
+        if (window.SmouhaNative && typeof window.SmouhaNative.wipeRamToken === 'function') {
+          window.SmouhaNative.wipeRamToken();
+        }
+        state.licenseActive = false;
+        stopCamera();
+        closeConfirmModal();
+        updateLicenseHeaderUI();
+        el.blockedMessageText.textContent = message || 'This license key has been deactivated by the admin.';
+        el.blockedKeyInput.value = state.licenseKey || el.inputLicenseKey.value || '';
+        el.blockedOverlay.classList.remove('hidden');
+        el.blockedOverlay.classList.add('flex');
+      }
+
+      // ============================================================================
+      // SERVER LICENSE VERIFICATION & DMART TOKEN HYDRATION (/api/mobile/verify & /api/mobile/ping)
+      // ============================================================================
+      async function verifyWithUnifiedGateway(rawKey, isPing) {
+        const cleanKey = String(rawKey || '').trim();
+        if (!cleanKey) return false;
+        state.licenseKey = cleanKey;
+        const devId = getDeviceId();
+        const endpoint = isPing ? '/api/mobile/ping' : '/api/mobile/verify';
+
+        try {
+          if (!isPing) addLog('AUTH', `POST ${endpoint}`, { key: cleanKey, deviceId: devId });
+          const res = await fetch(SMOUHA_GATEWAY_URL + endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              deviceId: devId,
+              deviceLabel: 'Smouha Stock Mobile',
+              licenseKey: cleanKey,
+              version: '1.1.0'
+            })
+          });
+          const data = await res.json().catch(() => ({}));
+
+          if (!res.ok || !data.ok || data.killNow) {
+            const msg = data.message || 'This license key has been deactivated by the admin.';
+            addLog('ERROR', `${endpoint} rejected (${res.status})`, { code: data.code || data.status, msg });
+            triggerHaptic('block');
+            enforceAdminBlockOverlay(msg);
+            return false;
+          }
+
+          state.licenseActive = true;
+          state.role = data.role === 'VIEW_ONLY' ? 'VIEW_ONLY' : 'FULL';
+
+          if (data.dmart && data.dmart.token) {
+            state.warehouseId = data.dmart.warehouseId || state.warehouseId;
+            state.remainingSeconds = Number(data.dmart.secondsLeft) || 3600;
+            if (window.SmouhaNative && typeof window.SmouhaNative.setRamToken === 'function') {
+              window.SmouhaNative.setRamToken(data.dmart.token, state.warehouseId);
+            }
+            if (!isPing) {
+              addLog('AUTH', 'DMart RAM token hydrated', {
+                warehouseId: state.warehouseId,
+                ttlSec: state.remainingSeconds,
+                role: state.role
+              });
+            }
+          } else {
+            if (!isPing) {
+              addLog('WARN', 'Key approved, but no active DMart token on server yet', data);
+            }
+          }
+
+          el.blockedOverlay.classList.add('hidden');
+          el.blockedOverlay.classList.remove('flex');
+          el.blockedVerifyStatus.textContent = '';
+          updateLicenseHeaderUI();
+          renderAdjustmentControls();
+          return true;
+        } catch (err) {
+          addLog('ERROR', `${endpoint} network failure`, String(err && err.message ? err.message : err));
+          return false;
+        }
+      }
+
+      // ============================================================================
+      // DUAL-PATH LIVE DMART API EXECUTOR (Native Kotlin Direct -> Cloudflare Proxy Fallback)
+      // ============================================================================
+      async function executeLiveDmartCall(method, path, bodyObj) {
+        const t0 = performance.now();
+
+        // 1. Ensure license key is verified first
+        if (!state.licenseKey) {
+          const saved = localStorage.getItem('smouha_license_key') || '';
+          if (saved) {
+            await verifyWithUnifiedGateway(saved, false);
+          }
+        }
+        if (!state.licenseActive) {
+          addLog('ERROR', 'Cannot call DMart: License key not active', { path });
+          showToast('Activate your SmouhaMob key first', 'var(--ui-remove)');
+          el.licensePanel.classList.remove('hidden');
+          return { ok: false, status: 401, error: 'NO_ACTIVE_KEY' };
+        }
+
+        // 2. Path A: Direct Native Kotlin Bridge (Fastest <200ms)
+        if (window.SmouhaNative && typeof window.SmouhaNative.dmartRequest === 'function') {
+          try {
+            if (typeof window.SmouhaNative.hasRamToken === 'function' && !window.SmouhaNative.hasRamToken()) {
+              await verifyWithUnifiedGateway(state.licenseKey, true);
+            }
+            const rawRes = window.SmouhaNative.dmartRequest(
+              method,
+              path,
+              bodyObj ? JSON.stringify(bodyObj) : ''
+            );
+            const latencyMs = Math.max(1, Math.round(performance.now() - t0));
+            const env = JSON.parse(rawRes);
+            if (env.ok) {
+              let parsed = null;
+              try { parsed = env.data ? JSON.parse(env.data) : null; } catch (e) {}
+              addLog(`DMART-${method}`, `Direct ${env.status} (${latencyMs}ms) ${path.slice(0, 75)}`, '');
+              return { ok: true, status: env.status, data: parsed, latencyMs };
+            }
+            addLog('WARN', `Native direct call returned ${env.status}, trying Cloud Proxy`, env.error || env.data);
+          } catch (nativeErr) {
+            addLog('WARN', 'Native bridge exception, trying Cloud Proxy', String(nativeErr));
+          }
+        }
+
+        // 3. Path B: Cloudflare Worker Authenticated DMart Proxy Fallback (/api/dmart/proxy)
+        try {
+          const proxyRes = await fetch(SMOUHA_GATEWAY_URL + '/api/dmart/proxy', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              deviceId: getDeviceId(),
+              licenseKey: state.licenseKey,
+              method,
+              path,
+              payload: bodyObj || null
+            })
+          });
+          const latencyMs = Math.max(1, Math.round(performance.now() - t0));
+          const env = await proxyRes.json().catch(() => ({}));
+          if (proxyRes.status === 403 && env.killNow) {
+            enforceAdminBlockOverlay(env.error || 'This license key has been deactivated by the admin.');
+            return { ok: false, status: 403, error: env.error };
+          }
+          if (!env.ok) {
+            addLog('ERROR', `DMart ${method} failed (${env.status || proxyRes.status})`, env.error || env.data);
+            return { ok: false, status: env.status || proxyRes.status, error: env.error || env.data, latencyMs };
+          }
+          let parsed = null;
+          try { parsed = env.data ? JSON.parse(env.data) : null; } catch (e) {}
+          addLog(`DMART-${method}`, `Proxy ${env.status} (${latencyMs}ms) ${path.slice(0, 75)}`, '');
+          return { ok: true, status: env.status, data: parsed, latencyMs };
+        } catch (proxyErr) {
+          addLog('ERROR', `DMart ${method} network error`, String(proxyErr));
+          return { ok: false, status: 0, error: String(proxyErr) };
+        }
+      }
+
+      function extractBarcodes(p) {
+        if (!p) return [];
+        const out = [];
+        const push = (v) => { const s = String(v || '').trim(); if (s && !out.includes(s)) out.push(s); };
+        push(p.barcode);
+        push(p.bar_code);
+        push(p.ean);
+        if (Array.isArray(p.barcodes)) p.barcodes.forEach(push);
+        if (Array.isArray(p.barcode_list)) p.barcode_list.forEach(push);
+        return out;
+      }
+
+      function extractPrice(p) {
+        if (!p || typeof p !== 'object') return 0;
+        if (Array.isArray(p.vendors) && p.vendors.length > 0 && p.vendors[0].price != null) {
+          return Number(p.vendors[0].price) || 0;
+        }
+        return Number(p.selling_price ?? p.price ?? p.unit_price ?? 0) || 0;
+      }
+
+      function pickSafeLocations(prodDetail) {
+        const rows = prodDetail?.locations_with_expiry_date || prodDetail?.locations || prodDetail?.stock_locations || [];
+        if (!Array.isArray(rows)) return [];
+        return rows.filter((r) => {
+          const t = String(r.location_type || r.type || 'NORMAL').toUpperCase();
+          return !UNSAFE_LOCATION_TYPES.has(t);
+        });
+      }
+
+      function pickBestShelfLocation(prodDetail, mode, qty) {
+        const safe = pickSafeLocations(prodDetail);
+        if (!safe.length) return null;
+        const usable = safe.filter((r) => {
+          if (mode !== 'DECREASE') return true;
+          return Number(r.qty ?? r.quantity ?? 0) >= qty;
+        });
+        const pool = usable.length ? usable : safe;
+        pool.sort((a, b) => Number(b.qty ?? b.quantity ?? 0) - Number(a.qty ?? a.quantity ?? 0));
+        const chosen = pool[0];
+        return {
+          location: chosen.location || chosen.location_code || chosen.code || 'DEFAULT',
+          expiry: chosen.expiry_date ? String(chosen.expiry_date).slice(0, 10) : 'N/A',
+          rawExpiryIso: chosen.expiry_date || null,
+          qtyBefore: Number(chosen.qty ?? chosen.quantity ?? 0)
+        };
+      }
+
+      async function liveSearchDmartProduct(rawQuery) {
+        const q = String(rawQuery || '').trim();
+        if (!q) return false;
+
+        showToast(`Searching "${q}"...`);
+        const wh = state.warehouseId || 'd24a9f96-f6bc-43b0-af78-b7067f0c901c';
+        const searchPath = `/v2/entity/HF_EG/warehouse/${wh}/products?per_page=20&page=1&sort=PRODUCT_NAME_ASC&query=${encodeURIComponent(q)}`;
+        const searchRes = await executeLiveDmartCall('GET', searchPath, null);
+        if (!searchRes.ok) {
+          triggerHaptic('block');
+          showToast(`Search failed (${searchRes.status || 'Error'})`, 'var(--ui-remove)');
+          return false;
+        }
+
+        const items = searchRes.data?.items || searchRes.data?.data || [];
+        if (!Array.isArray(items) || items.length === 0) {
+          addLog('SEARCH', `0 results for query "${q}"`, '');
+          triggerHaptic('block');
+          showToast(`No product found for "${q}"`, 'var(--ui-remove)');
+          return false;
+        }
+
+        let matched = items.find((p) => String(p.sku || '') === q) ||
+                      items.find((p) => extractBarcodes(p).includes(q)) ||
+                      (q.length >= 6 ? items.find((p) => String(p.sku || '').endsWith(q) || extractBarcodes(p).some((b) => b.endsWith(q))) : null) ||
+                      items[0];
+
+        const productId = matched.id || matched.productId;
+        const detailPath = `/v2/entity/HF_EG/warehouse/${wh}/product/${productId}`;
+        const detailRes = await executeLiveDmartCall('GET', detailPath, null);
+        const rawDetail = detailRes.ok && detailRes.data ? (detailRes.data.product || detailRes.data.data || detailRes.data) : matched;
+
+        const safeLocs = pickSafeLocations(rawDetail);
+        const totalSafeOnHand = safeLocs.length > 0
+          ? safeLocs.reduce((acc, r) => acc + (Number(r.qty ?? r.quantity ?? 0) || 0), 0)
+          : (Number(rawDetail.on_hand_quantity ?? matched.on_hand_quantity ?? 0) || 0);
+
+        const bestLoc = pickBestShelfLocation(rawDetail, 'DECREASE', 1);
+        const barcodes = extractBarcodes(rawDetail).concat(extractBarcodes(matched));
+
+        const movPath = `/v1/entity/HF_EG/warehouse/${wh}/product/${productId}/recent-movements?before_timestamp=0&max_results=8&with_warehouse_name=true`;
+        const movRes = await executeLiveDmartCall('GET', movPath, null);
+        const movItems = (movRes.ok && Array.isArray(movRes.data?.items)) ? movRes.data.items : [];
+        const mappedMovements = movItems.map((m) => ({
+          type: m.event_type || 'Movement',
+          ref: m.metadata?.platform_order_id ? `Order #${m.metadata.platform_order_id}` : (m.metadata?.po_reference || 'DMart'),
+          note: m.metadata?.owner || '',
+          delta: Number(m.on_hand_qty_delta || m.reserved_qty_delta || 0),
+          balance: Number(m.on_hand_qty ?? totalSafeOnHand),
+          time: m.timestamp ? String(m.timestamp).slice(11, 16) : ''
+        }));
+
+        state.currentProduct = {
+          id: productId,
+          sku: String(rawDetail.sku || matched.sku || q),
+          barcode: barcodes[0] || '—',
+          name: rawDetail.name || matched.name || `SKU ${q}`,
+          price: extractPrice(rawDetail) || extractPrice(matched),
+          onHand: totalSafeOnHand,
+          reserved: Number(rawDetail.reserved_quantity ?? matched.reserved_quantity ?? 0) || 0,
+          location: bestLoc ? bestLoc.location : '—',
+          expiry: bestLoc ? bestLoc.expiry : (rawDetail.nearest_expiry ? String(rawDetail.nearest_expiry).slice(0, 10) : '—'),
+          rawExpiryIso: bestLoc ? bestLoc.rawExpiryIso : (rawDetail.nearest_expiry || null),
+          rawDetail: rawDetail,
+          active: Array.isArray(rawDetail.vendors) && rawDetail.vendors[0] ? Boolean(rawDetail.vendors[0].is_product_active) : true,
+          image: rawDetail.image?.url || matched.image?.url || '',
+          movements: mappedMovements
+        };
+
+        saveProductToRecent(state.currentProduct);
+        closeConfirmModal();
+        playFeedback('scan');
+        renderAll();
+        showToast(`SKU ${state.currentProduct.sku} (${state.currentProduct.onHand} On Hand)`);
+        return true;
+      }
+
+      function closeConfirmModal() {
+        state.pendingModal = null;
+        el.confirmModalOverlay.classList.add('hidden');
+        el.confirmModalOverlay.classList.remove('flex');
+      }
+
+      function openConfirmModal(mode) {
+        const p = state.currentProduct;
+        if (!p || state.role === 'VIEW_ONLY' || !state.licenseActive) return;
+
+        const rawQty = Math.max(1, parseInt(el.qtyInput.value, 10) || 1);
+        const isRemove = mode === 'DECREASE';
+
+        if (isRemove && p.onHand <= 0) {
+          triggerHaptic('block');
+          showToast('Stock is already 0', 'var(--ui-remove)');
+          return;
+        }
+
+        const effectiveQty = isRemove ? Math.min(p.onHand, rawQty) : rawQty;
+        const delta = isRemove ? -effectiveQty : effectiveQty;
+        const afterQty = Math.max(0, p.onHand + delta);
+
+        state.pendingModal = { mode, delta, effectiveQty };
+        playFeedback('prompt');
+
+        const reasons = DMART_REASONS[mode] || [];
+        el.modalReasonSelect.innerHTML = '';
+        reasons.forEach((r) => {
+          const opt = document.createElement('option');
+          opt.value = r.code;
+          opt.textContent = r.label;
+          el.modalReasonSelect.appendChild(opt);
+        });
+
+        el.modalNoteInput.value = (el.noteInput.value || '').trim();
+
+        const unitWord = effectiveQty === 1 ? 'Unit' : 'Units';
+        el.modalProductSub.textContent = `SKU ${p.sku} · ${p.name}`;
+        el.modalBeforeQty.textContent = String(p.onHand);
+        el.modalAfterQty.textContent = String(afterQty);
+
+        if (isRemove) {
+          el.modalBadgeIcon.textContent = '−';
+          el.modalBadgeIcon.style.background = 'var(--ui-remove-soft)';
+          el.modalBadgeIcon.style.color = 'var(--ui-remove)';
+          el.modalTitle.textContent = `Remove ${effectiveQty} ${unitWord}?`;
+          el.modalDeltaPill.textContent = `−${effectiveQty}`;
+          el.modalDeltaPill.style.background = 'var(--ui-remove-soft)';
+          el.modalDeltaPill.style.color = 'var(--ui-remove)';
+          el.modalAfterQty.style.color = 'var(--ui-remove)';
+          el.btnModalConfirm.textContent = `Remove ${effectiveQty} ${unitWord}`;
+          el.btnModalConfirm.style.background = 'var(--ui-remove)';
+        } else {
+          el.modalBadgeIcon.textContent = '+';
+          el.modalBadgeIcon.style.background = 'var(--ui-add-soft)';
+          el.modalBadgeIcon.style.color = 'var(--ui-add)';
+          el.modalTitle.textContent = `Add ${effectiveQty} ${unitWord}?`;
+          el.modalDeltaPill.textContent = `+${effectiveQty}`;
+          el.modalDeltaPill.style.background = 'var(--ui-add-soft)';
+          el.modalDeltaPill.style.color = 'var(--ui-add)';
+          el.modalAfterQty.style.color = 'var(--ui-add)';
+          el.btnModalConfirm.textContent = `Add ${effectiveQty} ${unitWord}`;
+          el.btnModalConfirm.style.background = 'var(--ui-add)';
+        }
+
+        el.confirmModalOverlay.classList.remove('hidden');
+        el.confirmModalOverlay.classList.add('flex');
+      }
+
+      async function commitConfirmedAdjustment() {
+        if (!state.pendingModal || !state.currentProduct) return;
+        const { delta, mode } = state.pendingModal;
+        const p = state.currentProduct;
+        const reasonCode = el.modalReasonSelect.value || (delta < 0 ? 'STOCK_SUBTRACTION' : 'STOCK_ADDITION');
+        const noteText = (el.modalNoteInput.value || '').trim();
+
+        const wh = state.warehouseId || 'd24a9f96-f6bc-43b0-af78-b7067f0c901c';
+        const chosenLoc = p.rawDetail ? pickBestShelfLocation(p.rawDetail, mode, Math.abs(delta)) : {
+          location: p.location,
+          rawExpiryIso: p.rawExpiryIso || (p.expiry && p.expiry !== '—' && p.expiry !== 'N/A' ? `${p.expiry}T00:00:00Z` : null)
+        };
+
+        if (!chosenLoc || !chosenLoc.location || chosenLoc.location === '—' || chosenLoc.location === 'N/A') {
+          addLog('ERROR', 'No valid NORMAL shelf location available for stock adjustment', { sku: p.sku });
+          triggerHaptic('block');
+          showToast('No valid shelf location found for adjustment', 'var(--ui-remove)');
+          return;
+        }
+
+        const payload = {
+          notes: noteText,
+          reason: reasonCode,
+          stock_delta: delta,
+          type: delta < 0 ? 'DECREASE' : 'INCREASE',
+          location: chosenLoc.location,
+          sku: String(p.sku)
+        };
+        if (chosenLoc.rawExpiryIso) {
+          payload.expiry_date = chosenLoc.rawExpiryIso;
+        }
+
+        el.btnModalConfirm.disabled = true;
+        el.btnModalConfirm.textContent = 'Saving...';
+
+        const postPath = `/v2/entity/HF_EG/warehouse/${wh}/product/${p.id}/stock-adjustment`;
+        const postRes = await executeLiveDmartCall('POST', postPath, payload);
+
+        el.btnModalConfirm.disabled = false;
+
+        if (!postRes.ok) {
+          triggerHaptic('block');
+          showToast(`Adjust failed (${postRes.status || 'Error'})`, 'var(--ui-remove)');
+          return;
+        }
+
+        playFeedback(delta > 0 ? 'add' : 'remove');
+        el.noteInput.value = '';
+        el.modalNoteInput.value = '';
+        closeConfirmModal();
+
+        // Refresh live product state from DMart after adjustment
+        await liveSearchDmartProduct(p.sku);
+        const sign = delta > 0 ? `+${delta}` : `${delta}`;
+        showToast(`SKU ${p.sku}: ${sign} applied`, delta > 0 ? 'var(--ui-add)' : 'var(--ui-remove)');
+      }
+
+      // ============================================================================
+      // REAL HARDWARE BARCODE CAMERA SCANNER (Native BarcodeDetector + ZXing Fallback)
+      // ============================================================================
+      function onBarcodeDetected(rawCode) {
+        const code = String(rawCode || '').trim();
+        if (!code || state.scanLock) return;
+        state.scanLock = true;
+        addLog('SCAN', `Barcode read: ${code}`, '');
+        el.scanSearchInput.value = code;
+        el.btnClearInput.classList.remove('hidden');
+        stopCamera();
+        liveSearchDmartProduct(code).finally(() => {
+          setTimeout(() => { state.scanLock = false; }, 600);
+        });
+      }
+
+      async function toggleCamera() {
+        if (state.cameraOpen) {
+          stopCamera();
+          return;
+        }
+        state.cameraOpen = true;
+        state.scanLock = false;
+        el.cameraDrawer.classList.remove('hidden');
+        el.cameraBtnLabel.textContent = 'Close';
+        el.cameraStatusBadge.textContent = 'Starting camera...';
+
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              facingMode: { ideal: 'environment' },
+              width: { ideal: 1280 },
+              height: { ideal: 720 }
+            },
+            audio: false
+          });
+          state.cameraStream = stream;
+          el.cameraVideo.srcObject = stream;
+          await el.cameraVideo.play();
+
+          // 1. Prefer Native Chromium Hardware BarcodeDetector (60fps NPU/GPU)
+          if ('BarcodeDetector' in window) {
+            el.cameraStatusBadge.textContent = 'Scanning barcode...';
+            const detector = new window.BarcodeDetector({
+              formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39', 'itf', 'qr_code']
+            });
+            state.scannerLoopTimer = setInterval(async () => {
+              if (!state.cameraOpen || state.scanLock || el.cameraVideo.readyState < 2) return;
+              try {
+                const barcodes = await detector.detect(el.cameraVideo);
+                if (barcodes && barcodes.length > 0 && barcodes[0].rawValue) {
+                  onBarcodeDetected(barcodes[0].rawValue);
+                }
+              } catch (e) {}
+            }, 130);
+            addLog('SCAN', 'Started native BarcodeDetector engine', '');
+            return;
+          }
+
+          // 2. Fallback to ZXing Continuous Video Decoder
+          if (window.ZXing && window.ZXing.BrowserMultiFormatReader) {
+            el.cameraStatusBadge.textContent = 'Scanning barcode (ZXing)...';
+            state.zxingReader = new window.ZXing.BrowserMultiFormatReader();
+            state.zxingReader.decodeFromVideoElementContinuously(el.cameraVideo, (result) => {
+              if (result && typeof result.getText === 'function') {
+                onBarcodeDetected(result.getText());
+              } else if (result && result.text) {
+                onBarcodeDetected(result.text);
+              }
+            });
+            addLog('SCAN', 'Started ZXing continuous barcode decoder', '');
+          } else {
+            el.cameraStatusBadge.textContent = 'Camera active';
+          }
+        } catch (err) {
+          addLog('ERROR', 'Camera permission or init failed', String(err && err.message ? err.message : err));
+          el.cameraStatusBadge.textContent = 'Allow camera permission';
+        }
+      }
+
+      function stopCamera() {
+        state.cameraOpen = false;
+        el.cameraDrawer.classList.add('hidden');
+        el.cameraBtnLabel.textContent = 'Scan';
+        if (state.scannerLoopTimer) {
+          clearInterval(state.scannerLoopTimer);
+          state.scannerLoopTimer = null;
+        }
+        if (state.zxingReader) {
+          try { state.zxingReader.reset(); } catch (e) {}
+          state.zxingReader = null;
+        }
+        if (state.cameraStream) {
+          state.cameraStream.getTracks().forEach((t) => t.stop());
+          state.cameraStream = null;
+        }
+      }
+
+      // Product Image Zoom Lightbox
+      function setZoomLevel(lvl) {
+        state.imageZoomLevel = lvl;
+        el.zoomModalImg.style.transform = `scale(${lvl})`;
+        el.zoomViewport.style.cursor = lvl < 3 ? 'zoom-in' : 'zoom-out';
+        document.querySelectorAll('.zoom-lvl-btn').forEach((btn) => {
+          const bLvl = parseInt(btn.getAttribute('data-zoom-level'), 10);
+          const active = bLvl === lvl;
+          btn.style.background = active ? 'var(--ui-primary)' : 'var(--ui-surface-subtle)';
+          btn.style.color = active ? '#FFFFFF' : 'var(--ui-text)';
+          btn.style.borderColor = active ? 'var(--ui-primary)' : 'var(--ui-border)';
+        });
+      }
+
+      function openImageZoomModal() {
+        const p = state.currentProduct;
+        if (!p) return;
+        triggerHaptic('prompt');
+        el.zoomModalTitle.textContent = p.name;
+        el.zoomModalSku.textContent = `SKU ${p.sku} · ${p.barcode}`;
+        el.zoomModalImg.src = el.prodImage.src;
+        setZoomLevel(1);
+        el.imageZoomModal.classList.remove('hidden');
+        el.imageZoomModal.classList.add('flex');
+      }
+
+      function closeImageZoomModal() {
+        el.imageZoomModal.classList.add('hidden');
+        el.imageZoomModal.classList.remove('flex');
+      }
+
+      function renderProduct() {
+        const p = state.currentProduct;
+        if (!p) {
+          el.emptyProductState.classList.remove('hidden');
+          el.productCardSection.classList.add('hidden');
+          el.adjustmentCard.classList.add('hidden');
+          return;
+        }
+
+        el.emptyProductState.classList.add('hidden');
+        el.productCardSection.classList.remove('hidden');
+        el.adjustmentCard.classList.remove('hidden');
+
+        const fallbackSvg = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120"><rect width="120" height="120" rx="22" fill="#EA580C"/><text x="60" y="66" text-anchor="middle" fill="#FFF" font-family="JetBrains Mono,monospace" font-weight="700" font-size="18">' + p.sku + '</text></svg>');
+        el.prodImage.src = p.image || fallbackSvg;
+        el.prodImage.onerror = function () {
+          this.onerror = null;
+          this.src = fallbackSvg;
+        };
+        el.prodName.textContent = p.name;
+        el.prodSku.textContent = p.sku;
+        el.prodBarcode.textContent = p.barcode;
+        el.prodPrice.textContent = `${p.price} EGP`;
+        el.prodOnHand.textContent = String(p.onHand);
+        el.prodReserved.textContent = String(p.reserved);
+        el.prodLocation.textContent = p.location;
+        el.prodExpiry.textContent = p.expiry;
+        el.prodStatusPill.textContent = p.active ? 'Active' : 'Inactive';
+      }
+
+      function renderAdjustmentControls() {
+        const p = state.currentProduct;
+        const isViewOnly = state.role === 'VIEW_ONLY';
+        el.serverRoleBadge.textContent = isViewOnly ? 'View Only' : 'Full Edit';
+
+        if (!p) return;
+        if (isViewOnly) {
+          el.viewOnlyNotice.classList.remove('hidden');
+          el.editControlsContainer.classList.add('hidden');
+          return;
+        }
+        el.viewOnlyNotice.classList.add('hidden');
+        el.editControlsContainer.classList.remove('hidden');
+        el.btnTriggerDecrease.disabled = p.onHand <= 0;
+      }
+
+      function renderTabs() {
+        const p = state.currentProduct;
+        const tab = state.activeTab;
+
+        const styleTab = (btn, active) => {
+          btn.style.background = active ? 'var(--ui-primary)' : 'transparent';
+          btn.style.color = active ? '#FFFFFF' : 'var(--ui-text-secondary)';
+        };
+        styleTab(el.tabBtnMovements, tab === 'MOVEMENTS');
+        styleTab(el.tabBtnRecent, tab === 'RECENT');
+        styleTab(el.tabBtnLogs, tab === 'LOGS');
+
+        el.recentCountBadge.textContent = String(state.recentItems.length);
+        el.logsCountBadge.textContent = String(state.diagnosticLogs.length);
+
+        el.movementsView.classList.toggle('hidden', tab !== 'MOVEMENTS');
+        el.recentView.classList.toggle('hidden', tab !== 'RECENT');
+        el.logsView.classList.toggle('hidden', tab !== 'LOGS');
+        el.logsToolbar.classList.toggle('hidden', tab !== 'LOGS');
+        el.logsToolbar.classList.toggle('flex', tab === 'LOGS');
+
+        if (tab === 'MOVEMENTS') {
+          el.movementsView.innerHTML = '';
+          const movs = (p && Array.isArray(p.movements)) ? p.movements : [];
+          if (movs.length === 0) {
+            el.movementsView.innerHTML = `
+              <div class="py-6 text-center text-xs" style="color: var(--ui-text-muted);">
+                ${p ? 'No recent movements found for this item.' : 'Scan a product to view its stock movements.'}
+              </div>
+            `;
+            return;
+          }
+          movs.forEach((m) => {
+            const row = document.createElement('div');
+            row.className = 'flex items-center justify-between py-2 px-2.5 rounded-lg text-xs';
+            row.style.background = 'var(--ui-surface-subtle)';
+            const sign = m.delta > 0 ? `+${m.delta}` : `${m.delta}`;
+            const deltaColor = m.delta > 0 ? 'var(--ui-add)' : 'var(--ui-remove)';
+            const noteLine = m.note ? `<div class="text-[11px] truncate mt-0.5" style="color: var(--ui-text-muted);">${m.note}</div>` : '';
+            row.innerHTML = `
+              <div class="min-w-0 pr-2">
+                <div class="font-medium truncate" style="color: var(--ui-text);">${m.type}</div>
+                <div class="font-mono-num text-[11px] truncate" style="color: var(--ui-text-secondary);">${m.ref}${m.time ? (' · ' + m.time) : ''}</div>
+                ${noteLine}
+              </div>
+              <div class="text-right shrink-0 font-mono-num">
+                <div class="font-bold" style="color: ${deltaColor};">${sign}</div>
+                <div class="text-[11px]" style="color: var(--ui-text-muted);">Bal ${m.balance}</div>
+              </div>
+            `;
+            el.movementsView.appendChild(row);
+          });
+        } else if (tab === 'RECENT') {
+          el.recentView.innerHTML = '';
+          if (state.recentItems.length === 0) {
+            el.recentView.innerHTML = `
+              <div class="py-6 text-center text-xs" style="color: var(--ui-text-muted);">
+                Your last 8 scanned products will appear here for quick access.
+              </div>
+            `;
+            return;
+          }
+          state.recentItems.forEach((item) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'w-full text-left flex items-center justify-between py-2.5 px-3 rounded-xl text-xs border transition-colors';
+            btn.style.background = 'var(--ui-surface-subtle)';
+            btn.style.borderColor = 'var(--ui-border)';
+            btn.innerHTML = `
+              <div class="min-w-0 pr-2">
+                <div class="font-semibold truncate" style="color: var(--ui-text);">${item.name}</div>
+                <div class="font-mono-num text-[11px] mt-0.5" style="color: var(--ui-text-secondary);">SKU ${item.sku} · Shelf ${item.location}</div>
+              </div>
+              <div class="text-right shrink-0 font-mono-num">
+                <div class="text-sm font-bold" style="color: var(--ui-primary);">${item.onHand}</div>
+                <div class="text-[10px]" style="color: var(--ui-text-muted);">${item.price} EGP</div>
+              </div>
+            `;
+            btn.addEventListener('click', () => {
+              el.scanSearchInput.value = item.sku;
+              el.btnClearInput.classList.remove('hidden');
+              liveSearchDmartProduct(item.sku);
+            });
+            el.recentView.appendChild(btn);
+          });
+        } else if (tab === 'LOGS') {
+          el.logsView.innerHTML = '';
+          if (state.diagnosticLogs.length === 0) {
+            el.logsView.innerHTML = `
+              <div class="py-6 text-center text-xs" style="color: var(--ui-text-muted);">
+                No diagnostic logs recorded yet.
+              </div>
+            `;
+            return;
+          }
+          state.diagnosticLogs.forEach((lg) => {
+            const row = document.createElement('div');
+            row.className = 'p-2 rounded-lg border break-all';
+            row.style.background = 'var(--ui-surface-subtle)';
+            row.style.borderColor = 'var(--ui-border)';
+            const isErr = lg.tag === 'ERROR' || lg.tag === 'WARN';
+            const tagColor = isErr ? 'var(--ui-remove)' : 'var(--ui-primary)';
+            row.innerHTML = `
+              <div class="flex items-center justify-between gap-2">
+                <span class="font-bold" style="color: ${tagColor};">[${lg.tag}] ${lg.message}</span>
+                <span class="text-[10px] shrink-0" style="color: var(--ui-text-muted);">${lg.ts}</span>
+              </div>
+              ${lg.detail ? `<div class="text-[10px] mt-0.5" style="color: var(--ui-text-secondary);">${lg.detail}</div>` : ''}
+            `;
+            el.logsView.appendChild(row);
+          });
+        }
+      }
+
+      function renderAll() {
+        updateLicenseHeaderUI();
+        renderProduct();
+        renderAdjustmentControls();
+        renderTabs();
+      }
+
+      // Event Listeners
+      el.btnSoundToggle.addEventListener('click', () => {
+        state.soundEnabled = !state.soundEnabled;
+        el.iconSoundOn.classList.toggle('hidden', !state.soundEnabled);
+        el.iconSoundOff.classList.toggle('hidden', state.soundEnabled);
+        if (state.soundEnabled) playFeedback('scan');
+        showToast(state.soundEnabled ? 'Sound & Vibration On' : 'Muted');
+      });
+
+      el.btnThemeToggle.addEventListener('click', () => {
+        state.theme = state.theme === 'stone' ? 'graphite' : 'stone';
+        document.documentElement.setAttribute('data-theme', state.theme);
+        el.iconSun.classList.toggle('hidden', state.theme === 'stone');
+        el.iconMoon.classList.toggle('hidden', state.theme === 'graphite');
+      });
+
+      el.btnLicensePopover.addEventListener('click', () => {
+        el.licensePanel.classList.toggle('hidden');
+      });
+
+      el.btnConnectLiveKey.addEventListener('click', async () => {
+        const key = (el.inputLicenseKey.value || '').trim();
+        if (!key) {
+          showToast('Enter Mobile Key (SmouhaMob-...)', 'var(--ui-remove)');
+          return;
+        }
+        try { localStorage.setItem('smouha_license_key', key); } catch (e) {}
+        el.btnConnectLiveKey.disabled = true;
+        el.btnConnectLiveKey.textContent = '...';
+        const ok = await verifyWithUnifiedGateway(key, false);
+        el.btnConnectLiveKey.disabled = false;
+        el.btnConnectLiveKey.textContent = 'Activate';
+        if (ok) {
+          playFeedback('scan');
+          el.licensePanel.classList.add('hidden');
+          showToast('Mobile Key Activated', 'var(--ui-add)');
+        }
+      });
+
+      // Strict Server Check on Blocked Overlay (Never Unlocks Locally!)
+      el.btnVerifyUnblockServer.addEventListener('click', async () => {
+        const candidateKey = (el.blockedKeyInput.value || state.licenseKey || '').trim();
+        if (!candidateKey) {
+          el.blockedVerifyStatus.textContent = 'Enter a valid SmouhaMob license key.';
+          return;
+        }
+        el.btnVerifyUnblockServer.disabled = true;
+        el.btnVerifyUnblockServer.textContent = 'Checking with server...';
+        el.blockedVerifyStatus.textContent = '';
+        try { localStorage.setItem('smouha_license_key', candidateKey); } catch (e) {}
+        el.inputLicenseKey.value = candidateKey;
+
+        const ok = await verifyWithUnifiedGateway(candidateKey, false);
+        el.btnVerifyUnblockServer.disabled = false;
+        el.btnVerifyUnblockServer.textContent = 'Check Status with Server';
+        if (!ok) {
+          el.blockedVerifyStatus.textContent = 'Access is still deactivated by the admin.';
+        } else {
+          playFeedback('scan');
+          showToast('Access restored by admin', 'var(--ui-add)');
+        }
+      });
+
+      el.scanSearchInput.addEventListener('input', (e) => {
+        el.btnClearInput.classList.toggle('hidden', !e.target.value);
+      });
+
+      el.scanSearchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          liveSearchDmartProduct(el.scanSearchInput.value);
+        }
+      });
+
+      el.btnExecSearch.addEventListener('click', () => {
+        liveSearchDmartProduct(el.scanSearchInput.value);
+      });
+
+      el.btnClearInput.addEventListener('click', () => {
+        el.scanSearchInput.value = '';
+        el.btnClearInput.classList.add('hidden');
+        el.scanSearchInput.focus();
+      });
+
+      el.btnToggleCamera.addEventListener('click', toggleCamera);
+
+      el.btnCameraZoom.addEventListener('click', () => {
+        state.cameraZoom = state.cameraZoom === 1 ? 2 : 1;
+        el.btnCameraZoom.textContent = `${state.cameraZoom}x`;
+        el.cameraVideo.style.transform = `scale(${state.cameraZoom})`;
+      });
+
+      el.btnCameraTorch.addEventListener('click', async () => {
+        state.torchOn = !state.torchOn;
+        el.btnCameraTorch.style.background = state.torchOn ? '#EA580C' : 'rgba(0,0,0,0.7)';
+        if (state.cameraStream) {
+          const track = state.cameraStream.getVideoTracks()[0];
+          if (track && typeof track.applyConstraints === 'function') {
+            try {
+              await track.applyConstraints({ advanced: [{ torch: state.torchOn }] });
+            } catch (e) {}
+          }
+        }
+      });
+
+      el.btnOpenImageZoom.addEventListener('click', openImageZoomModal);
+      el.btnCloseImageZoom.addEventListener('click', closeImageZoomModal);
+      el.imageZoomModal.addEventListener('click', (e) => {
+        if (e.target === el.imageZoomModal) closeImageZoomModal();
+      });
+      el.zoomViewport.addEventListener('click', () => {
+        const nextLvl = state.imageZoomLevel === 1 ? 2 : state.imageZoomLevel === 2 ? 3 : 1;
+        setZoomLevel(nextLvl);
+      });
+      document.querySelectorAll('.zoom-lvl-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const lvl = parseInt(btn.getAttribute('data-zoom-level'), 10) || 1;
+          setZoomLevel(lvl);
+        });
+      });
+
+      el.btnCopySku.addEventListener('click', () => {
+        if (state.currentProduct) copyText(state.currentProduct.sku, 'SKU');
+      });
+
+      el.btnCopyBarcode.addEventListener('click', () => {
+        if (state.currentProduct) copyText(state.currentProduct.barcode, 'Barcode');
+      });
+
+      el.btnTriggerDecrease.addEventListener('click', () => {
+        openConfirmModal('DECREASE');
+      });
+
+      el.btnTriggerIncrease.addEventListener('click', () => {
+        openConfirmModal('INCREASE');
+      });
+
+      el.btnModalCancel.addEventListener('click', closeConfirmModal);
+      el.btnModalConfirm.addEventListener('click', commitConfirmedAdjustment);
+      el.confirmModalOverlay.addEventListener('click', (e) => {
+        if (e.target === el.confirmModalOverlay) closeConfirmModal();
+      });
+
+      el.tabBtnMovements.addEventListener('click', () => {
+        state.activeTab = 'MOVEMENTS';
+        renderTabs();
+      });
+
+      el.tabBtnRecent.addEventListener('click', () => {
+        state.activeTab = 'RECENT';
+        renderTabs();
+      });
+
+      el.tabBtnLogs.addEventListener('click', () => {
+        state.activeTab = 'LOGS';
+        renderTabs();
+      });
+
+      el.btnCopyLogs.addEventListener('click', () => {
+        const text = state.diagnosticLogs.map((l) => `${l.ts} [${l.tag}] ${l.message} ${l.detail}`).join('\n');
+        copyText(text || 'No logs', 'Logs');
+      });
+
+      el.btnClearLogs.addEventListener('click', () => {
+        state.diagnosticLogs = [];
+        renderTabs();
+      });
+
+      // Hardware Bluetooth / USB HID Barcode Scanner Focus Guard (<35ms burst detection)
+      let hidBuffer = '';
+      let lastKeyTime = 0;
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          closeConfirmModal();
+          closeImageZoomModal();
+          return;
+        }
+        const activeTag = document.activeElement ? document.activeElement.tagName : '';
+        if (activeTag === 'INPUT' || activeTag === 'SELECT' || activeTag === 'TEXTAREA') return;
+        const now = performance.now();
+        if (now - lastKeyTime > 60) {
+          hidBuffer = '';
+        }
+        lastKeyTime = now;
+        if (e.key === 'Enter' && hidBuffer.length >= 4) {
+          el.scanSearchInput.value = hidBuffer;
+          el.btnClearInput.classList.remove('hidden');
+          liveSearchDmartProduct(hidBuffer);
+          hidBuffer = '';
+        } else if (e.key.length === 1) {
+          hidBuffer += e.key;
+        }
+      });
+
+      // Live session countdown timer
+      setInterval(() => {
+        if (state.licenseActive && state.remainingSeconds > 0) {
+          state.remainingSeconds -= 1;
+          const formatted = formatHMS(state.remainingSeconds);
+          el.tokenTimerText.textContent = formatted;
+          el.popoverTimerText.textContent = `${formatted} remaining`;
+        }
+      }, 1000);
+
+      // Background 15s Ping to Unified Gateway (Instant Kill-Switch & Live DMart Token Sync)
+      setInterval(() => {
+        try {
+          const savedKey = localStorage.getItem('smouha_license_key');
+          if (savedKey) {
+            verifyWithUnifiedGateway(savedKey, true);
+          }
+        } catch (e) {}
+      }, 15000);
+
+      // Boot sequence: load recent items, log device ID, and auto-verify saved key immediately
+      loadRecentFromStorage();
+      addLog('BOOT', `Smouha Stock v1.1 initialized`, { deviceId: getDeviceId() });
+      try {
+        const savedKey = localStorage.getItem('smouha_license_key') || '';
+        if (savedKey) {
+          el.inputLicenseKey.value = savedKey;
+          verifyWithUnifiedGateway(savedKey, false);
+        } else {
+          el.licensePanel.classList.remove('hidden');
+        }
+      } catch (e) {}
+      renderAll();
+    })();
+  </script>
+</body>
+</html>
