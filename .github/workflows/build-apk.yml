@@ -1,0 +1,90 @@
+name: Build Smouha Stock APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+
+concurrency:
+  group: apk-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Assemble Release APK
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Write local.properties
+        run: |
+          SDK="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
+          [ -d "$SDK" ] || { echo "Android SDK not found"; exit 1; }
+          echo "sdk.dir=$SDK" > local.properties
+
+      - name: Accept licenses & install platform 34
+        run: |
+          SDK="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
+          SMGR=""
+          for c in \
+            "$SDK/cmdline-tools/latest/bin/sdkmanager" \
+            "$SDK/cmdline-tools/bin/sdkmanager" \
+            "$(find "$SDK/cmdline-tools" -type f -name sdkmanager 2>/dev/null | head -1)"
+          do
+            if [ -x "$c" ]; then SMGR="$c"; break; fi
+          done
+          if [ -n "$SMGR" ]; then
+            yes | "$SMGR" --licenses >/dev/null || true
+            "$SMGR" "platforms;android-34" "build-tools;34.0.0"
+          fi
+
+      - name: Prepare signing keystore
+        env:
+          KEYSTORE_B64: ${{ secrets.SMOUHA_KEYSTORE_B64 }}
+          SMOUHA_KEYSTORE_PASS: ${{ secrets.SMOUHA_KEYSTORE_PASS }}
+          SMOUHA_KEY_PASS: ${{ secrets.SMOUHA_KEY_PASS }}
+          SMOUHA_KEY_ALIAS: ${{ secrets.SMOUHA_KEY_ALIAS }}
+        run: |
+          mkdir -p /tmp/smouha-keys
+          if [ -n "$KEYSTORE_B64" ]; then
+            echo "$KEYSTORE_B64" | base64 -d > /tmp/smouha-keys/smouha-release.jks
+            echo "Using persistent keystore from secrets"
+          else
+            echo "Generating release keystore at /tmp/smouha-keys/smouha-release.jks"
+            keytool -genkeypair -keystore /tmp/smouha-keys/smouha-release.jks -storetype PKCS12 \
+              -storepass "${SMOUHA_KEYSTORE_PASS:-SmouhaOps2026#Key}" \
+              -keypass   "${SMOUHA_KEY_PASS:-SmouhaOps2026#Key}" \
+              -alias     "${SMOUHA_KEY_ALIAS:-smouha_release_key}" \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -dname "CN=Smouha Stock Terminal, OU=Logistics Engineering, O=Smouha DS60, L=Alexandria, ST=Alexandria, C=EG"
+          fi
+
+      - name: Assemble release APK
+        env:
+          SMOUHA_KEYSTORE_PASS: ${{ secrets.SMOUHA_KEYSTORE_PASS }}
+          SMOUHA_KEY_PASS: ${{ secrets.SMOUHA_KEY_PASS }}
+          SMOUHA_KEY_ALIAS: ${{ secrets.SMOUHA_KEY_ALIAS }}
+        run: |
+          for i in 1 2 3; do
+            echo "=== Build attempt $i/3 ==="
+            if ./gradlew :app:assembleRelease --no-daemon --stacktrace; then exit 0; fi
+            echo "Attempt $i failed, retrying in $((i*45))s..."
+            sleep $((i*45))
+          done
+          exit 1
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SmouhaStock-release-apk
+          path: app/build/outputs/apk/**/*.apk
+          if-no-files-found: error
