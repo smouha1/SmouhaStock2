@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>Smouha Stock v5.2</title>
+  <title>Smouha Stock v5.3</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
-  <script src="https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js"></script>
+  <script src="https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js" async></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
@@ -35,8 +35,8 @@
       --ui-remove-border: rgba(220, 38, 38, 0.28);
       --ui-shadow: 0 2px 6px rgba(24, 22, 21, 0.05);
       --ui-shadow-lg: 0 12px 32px rgba(24, 22, 21, 0.14);
-      --ui-modal-backdrop: rgba(18, 17, 16, 0.60);
-      --ui-nav-bg: rgba(255, 255, 255, 0.94);
+      --ui-modal-backdrop: rgba(18, 17, 16, 0.62);
+      --ui-nav-bg: rgba(255, 255, 255, 0.96);
     }
 
     [data-theme="graphite"] {
@@ -64,13 +64,19 @@
       --ui-remove-border: rgba(239, 68, 68, 0.35);
       --ui-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
       --ui-shadow-lg: 0 14px 36px rgba(0, 0, 0, 0.55);
-      --ui-modal-backdrop: rgba(0, 0, 0, 0.76);
-      --ui-nav-bg: rgba(28, 26, 24, 0.95);
+      --ui-modal-backdrop: rgba(0, 0, 0, 0.78);
+      --ui-nav-bg: rgba(28, 26, 24, 0.96);
     }
 
     * {
       box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Hard fallback utility classes so layout and modals work even if Tailwind CDN lags */
+    .hidden {
+      display: none !important;
+      pointer-events: none !important;
     }
 
     body {
@@ -95,8 +101,8 @@
       min-height: 100dvh;
       display: flex;
       flex-direction: column;
-      padding: 10px 14px 92px;
-      gap: 11px;
+      padding: 10px 12px 92px;
+      gap: 10px;
     }
 
     .ui-card {
@@ -116,7 +122,7 @@
       border-radius: 12px;
       font-weight: 600;
       font-size: 14px;
-      transition: transform 110ms cubic-bezier(0.22, 1, 0.36, 1), background-color 120ms ease, opacity 120ms ease, box-shadow 120ms ease;
+      transition: transform 110ms cubic-bezier(0.22, 1, 0.36, 1), background-color 120ms ease, opacity 120ms ease;
       cursor: pointer;
       user-select: none;
     }
@@ -180,12 +186,12 @@
     }
 
     @keyframes viewFadeIn {
-      0% { opacity: 0; transform: translateY(5px); }
+      0% { opacity: 0; transform: translateY(4px); }
       100% { opacity: 1; transform: translateY(0); }
     }
 
     .view-anim {
-      animation: viewFadeIn 150ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      animation: viewFadeIn 140ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
     }
 
     @keyframes modalPop {
@@ -194,10 +200,9 @@
     }
 
     .modal-card-anim {
-      animation: modalPop 150ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      animation: modalPop 140ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
     }
 
-    /* Custom Premium Reason Dropdown */
     .reason-option-btn {
       display: flex;
       align-items: center;
@@ -247,6 +252,9 @@
       font-size: 11px;
       font-weight: 600;
       color: var(--ui-text-secondary);
+      background: transparent;
+      border: none;
+      cursor: pointer;
       transition: all 130ms cubic-bezier(0.22, 1, 0.36, 1);
     }
     .nav-tab-btn:active {
@@ -273,12 +281,12 @@
       color: #FFFFFF;
     }
 
-    /* Toggle Switch */
     .ui-switch {
       position: relative;
       width: 44px;
       height: 24px;
       border-radius: 999px;
+      border: none;
       transition: background-color 140ms ease;
       cursor: pointer;
       flex-shrink: 0;
@@ -302,37 +310,65 @@
 <body>
   <div class="app-shell">
 
-    <!-- Compact Top Status Bar (Settings/Audio/Theme moved to Bottom Nav Settings) -->
-    <header class="flex items-center justify-between gap-2 pt-0.5">
-      <div class="flex items-center gap-2.5">
+    <!-- Single-Line Non-Wrapping Top Status Bar (Optimized for 360px Phone Screens) -->
+    <header class="flex items-center justify-between gap-1.5 pt-0.5">
+      <div class="flex items-center gap-2 min-w-0 shrink-0">
         <img
           src="data:image/png;base64,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"
           alt="Smouha Stock Icon"
-          class="w-8 h-8 rounded-lg shrink-0 shadow-sm"
+          class="w-7 h-7 rounded-lg shrink-0 shadow-sm"
         />
-        <div class="flex items-center gap-2">
-          <h1 class="text-sm font-bold tracking-tight" style="color: var(--ui-text);">Smouha Stock</h1>
-          <span class="text-[11px] font-mono-num px-1.5 py-0.5 rounded font-semibold" style="background: var(--ui-primary-soft); color: var(--ui-primary);">DS 60</span>
-        </div>
+        <span class="text-[13px] font-bold tracking-tight whitespace-nowrap" style="color: var(--ui-text);">Smouha Stock</span>
+        <span class="text-[10px] font-mono-num px-1.5 py-0.5 rounded font-bold whitespace-nowrap" style="background: var(--ui-primary-soft); color: var(--ui-primary);">DS 60</span>
       </div>
 
-      <div class="flex items-center gap-1.5">
+      <div class="flex items-center gap-1 shrink-0">
         <!-- Quick Shift Pill -->
-        <button id="btnHeaderShiftPill" type="button" class="flex items-center gap-1.5 px-2.5 h-8 rounded-lg text-[11px] font-semibold border transition-colors" style="background: var(--ui-surface); border-color: var(--ui-border); color: var(--ui-text-secondary);">
-          <span class="w-1.5 h-1.5 rounded-full" style="background: var(--ui-primary);"></span>
+        <button id="btnHeaderShiftPill" type="button" class="flex items-center gap-1 px-2 h-7 rounded-lg text-[11px] font-semibold border whitespace-nowrap" style="background: var(--ui-surface); border-color: var(--ui-border); color: var(--ui-text-secondary);">
+          <span class="w-1.5 h-1.5 rounded-full shrink-0" style="background: var(--ui-primary);"></span>
           <span>Shift:</span>
           <span id="headerShiftCount" class="font-mono-num font-bold" style="color: var(--ui-text);">0</span>
         </button>
 
-        <!-- Key Status Pill (Tapping opens Settings tab) -->
-        <button id="btnLicensePopover" type="button" class="flex items-center gap-1.5 px-2.5 h-8 rounded-lg text-xs font-medium border transition-colors" style="background: var(--ui-surface); border-color: var(--ui-border); color: var(--ui-text);">
-          <span id="licenseDot" class="w-2 h-2 rounded-full" style="background: #F59E0B;"></span>
-          <span id="licenseStatusLabel" class="font-semibold text-[11px]">Key</span>
+        <!-- Key Status Pill (Tapping opens License Activation / Settings) -->
+        <button id="btnLicensePopover" type="button" class="flex items-center gap-1 px-2 h-7 rounded-lg text-[11px] font-medium border whitespace-nowrap" style="background: var(--ui-surface); border-color: var(--ui-border); color: var(--ui-text);">
+          <span id="licenseDot" class="w-2 h-2 rounded-full shrink-0" style="background: #F59E0B;"></span>
+          <span id="licenseStatusLabel" class="font-semibold">Activate</span>
           <span style="color: var(--ui-border-strong);">·</span>
-          <span id="tokenTimerText" class="font-mono-num text-[11px]" style="color: var(--ui-text-secondary);">--:--:--</span>
+          <span id="tokenTimerText" class="font-mono-num text-[10.5px] whitespace-nowrap" style="color: var(--ui-text-secondary);">--:--:--</span>
         </button>
       </div>
     </header>
+
+    <!-- Prominent Inline License Activation Prompt Banner (Shown Automatically When Not Activated!) -->
+    <section id="unactivatedPromptBanner" class="ui-card p-3.5 border-2" style="border-color: var(--ui-primary-border); background: var(--ui-surface);">
+      <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full animate-pulse" style="background: var(--ui-primary);"></span>
+          <span class="text-xs font-bold" style="color: var(--ui-text);">Activate Mobile License Key</span>
+        </div>
+        <span class="text-[10px] font-mono-num px-1.5 py-0.5 rounded font-semibold" style="background: var(--ui-primary-soft); color: var(--ui-primary);">Required</span>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <input
+          id="bannerLicenseInput"
+          type="text"
+          autocomplete="off"
+          spellcheck="false"
+          placeholder="SmouhaMob-XXXX-XXXX"
+          class="flex-1 h-10 px-3 rounded-xl font-mono-num text-xs font-semibold border focus:outline-none"
+          style="background: var(--ui-surface-subtle); border-color: var(--ui-border-strong); color: var(--ui-text);"
+        />
+        <button
+          id="btnBannerActivate"
+          type="button"
+          class="px-4 h-10 rounded-xl text-xs font-bold text-white shrink-0"
+          style="background: var(--ui-primary);"
+        >
+          Activate
+        </button>
+      </div>
+    </section>
 
     <!-- =================================================================== -->
     <!-- MAIN VIEW 1: SCANNER WORKSPACE                                      -->
@@ -351,11 +387,11 @@
               type="text"
               autocomplete="off"
               spellcheck="false"
-              placeholder="Scan barcode, SKU, or name (e.g. elano)..."
-              class="w-full h-11 pl-9 pr-16 rounded-xl text-xs font-medium border-0 focus:outline-none"
+              placeholder="Scan barcode, SKU, or name..."
+              class="w-full h-11 pl-9 pr-14 rounded-xl text-[13px] font-medium border-0 focus:outline-none"
               style="background: var(--ui-surface-subtle); color: var(--ui-text);"
             />
-            <button id="btnClearInput" type="button" aria-label="Clear search" class="w-7 h-7 rounded-md flex items-center justify-center absolute right-9 hidden" style="color: var(--ui-text-muted);">
+            <button id="btnClearInput" type="button" aria-label="Clear search" class="w-7 h-7 rounded-md flex items-center justify-center absolute right-8 hidden" style="color: var(--ui-text-muted);">
               <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
               </svg>
@@ -423,7 +459,7 @@
         </div>
       </section>
 
-      <!-- Live Network Sync Progress Banner (Eliminates Perceived Lag on Recent / Search) -->
+      <!-- Live Network Sync Progress Banner -->
       <div id="liveSyncBanner" class="hidden rounded-xl overflow-hidden border px-3 py-2 flex items-center justify-between" style="background: var(--ui-surface); border-color: var(--ui-primary-border);">
         <div class="flex items-center gap-2">
           <span class="w-2 h-2 rounded-full animate-ping" style="background: var(--ui-primary);"></span>
@@ -449,7 +485,6 @@
 
       <!-- Active Product Card -->
       <section id="productCardSection" class="ui-card p-4 hidden">
-        <!-- Top Product Identity -->
         <div class="flex items-start gap-3">
           <button
             id="btnOpenImageZoom"
@@ -458,7 +493,6 @@
             class="prod-thumb-btn w-16 h-16 rounded-xl border shrink-0 flex items-center justify-center p-1 relative"
             style="background: var(--ui-surface-subtle); border-color: var(--ui-border);"
           >
-            <!-- Instant Skeleton Shimmer while new image downloads (Prevents stale image lag!) -->
             <div id="prodImageSkeleton" class="absolute inset-0 skeleton-shimmer flex items-center justify-center">
               <span id="prodImageSkeletonSku" class="font-mono-num text-[10px] font-bold" style="color: var(--ui-text-muted);">...</span>
             </div>
@@ -475,7 +509,6 @@
               <h2 id="prodName" class="text-[14.5px] font-bold leading-snug break-words" style="color: var(--ui-text);">
                 —
               </h2>
-              <!-- Compact Full DMart Info Button (Shows all 16+ HAR fields without cluttering screen) -->
               <button
                 id="btnOpenFullInfo"
                 type="button"
@@ -492,7 +525,6 @@
 
             <div id="prodNameAr" class="text-xs font-medium mt-0.5 truncate hidden" dir="rtl" style="color: var(--ui-text-secondary);"></div>
 
-            <!-- Copyable SKU & Barcode Chips (No EAN prefix, no latency badge) -->
             <div class="flex flex-wrap items-center gap-1.5 mt-2">
               <button id="btnCopySku" type="button" class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-mono-num border transition-colors" style="background: var(--ui-surface-subtle); border-color: var(--ui-border); color: var(--ui-text);">
                 <span style="color: var(--ui-text-muted);">SKU</span>
@@ -510,21 +542,18 @@
           </div>
         </div>
 
-        <!-- Row 1: On Hand (LEFT) | Price (CENTER) | Reserved (RIGHT) as requested! -->
+        <!-- Row 1: On Hand (LEFT) | Price (CENTER) | Reserved (RIGHT) -->
         <div class="grid grid-cols-3 gap-2 mt-3.5">
-          <!-- Left: Quantity (On Hand) -->
           <div class="p-3 rounded-xl border" style="background: var(--ui-primary-soft); border-color: var(--ui-primary-border);">
             <div class="text-[11px] font-semibold" style="color: var(--ui-primary);">On Hand</div>
             <div id="prodOnHand" class="font-mono-num text-2xl font-bold tracking-tight mt-0.5" style="color: var(--ui-primary);">—</div>
           </div>
 
-          <!-- Center: Price -->
           <div class="p-3 rounded-xl border" style="background: var(--ui-surface-subtle); border-color: var(--ui-border);">
             <div class="text-[11px] font-medium" style="color: var(--ui-text-secondary);">Price</div>
             <div id="prodPrice" class="font-mono-num text-lg font-bold tracking-tight mt-1" style="color: var(--ui-text);">—</div>
           </div>
 
-          <!-- Right: Reserved -->
           <div class="p-3 rounded-xl border" style="background: var(--ui-surface-subtle); border-color: var(--ui-border);">
             <div class="text-[11px] font-medium" style="color: var(--ui-text-secondary);">Reserved</div>
             <div id="prodReserved" class="font-mono-num text-lg font-bold tracking-tight mt-1" style="color: var(--ui-text);">—</div>
@@ -545,7 +574,7 @@
         </div>
       </section>
 
-      <!-- Stock Adjustment Section with Premium Expandable Reason Pickers & Auto-Reset Qty -->
+      <!-- Stock Adjustment Section -->
       <section id="adjustmentCard" class="ui-card p-4 hidden">
         <div id="viewOnlyNotice" class="hidden py-2.5 px-3 rounded-lg text-xs font-medium text-center" style="background: var(--ui-surface-subtle); color: var(--ui-text-secondary);">
           View-only key. Stock editing is disabled for this device.
@@ -554,7 +583,6 @@
         <div id="editControlsContainer" class="space-y-3">
           <div class="flex items-center justify-between">
             <span class="text-xs font-bold" style="color: var(--ui-text);">Stock Adjustment</span>
-            <!-- Quick Preset Quantity Pills -->
             <div class="flex items-center gap-1">
               <span class="text-[10px] mr-0.5" style="color: var(--ui-text-muted);">Quick:</span>
               <button type="button" data-quick-qty="1" class="quick-qty-btn px-2 py-0.5 rounded text-[11px] font-mono-num font-semibold border" style="background: var(--ui-surface-subtle); border-color: var(--ui-border); color: var(--ui-text);">1</button>
@@ -564,7 +592,6 @@
             </div>
           </div>
 
-          <!-- (−) Remove | Auto-Select Qty Input (Resets to 1 after action) | (+) Add -->
           <div class="grid grid-cols-12 gap-2 items-center">
             <button
               id="btnTriggerDecrease"
@@ -601,7 +628,7 @@
             </button>
           </div>
 
-          <!-- Dual Default Reason Triggers (Remove Default: Stock Subtraction | Add Default: Stock Addition) -->
+          <!-- Dual Default Reason Triggers -->
           <div class="grid grid-cols-2 gap-2">
             <button
               id="btnOpenDecreaseReasons"
@@ -634,7 +661,6 @@
             </button>
           </div>
 
-          <!-- Optional Note Input -->
           <div>
             <input
               id="noteInput"
@@ -648,21 +674,24 @@
         </div>
       </section>
 
-      <!-- Product Movements History Card with Backward Time Pagination (before_timestamp) -->
+      <!-- Product Movements History Card -->
       <section class="ui-card p-4">
         <div class="flex items-center justify-between gap-2 mb-3">
           <div class="flex items-center gap-2">
             <h3 class="text-xs font-bold" style="color: var(--ui-text);">Product Movements History</h3>
             <span id="movementsTotalBadge" class="text-[11px] font-mono-num px-2 py-0.5 rounded-md font-semibold" style="background: var(--ui-surface-subtle); color: var(--ui-text-secondary);">0</span>
           </div>
-          <button id="btnRefreshMovements" type="button" class="text-[11px] font-semibold px-2 py-1 rounded-lg border" style="background: var(--ui-surface-subtle); border-color: var(--ui-border); color: var(--ui-primary);">
+          <button id="btnRefreshMovements" type="button" class="text-[11px] font-semibold px-2.5 py-1 rounded-lg border" style="background: var(--ui-surface-subtle); border-color: var(--ui-border); color: var(--ui-primary);">
             Refresh
           </button>
         </div>
 
-        <div id="movementsView" class="space-y-2"></div>
+        <div id="movementsView" class="space-y-2">
+          <div class="py-5 text-center text-xs" style="color: var(--ui-text-muted);">
+            Scan a product to inspect its movement history.
+          </div>
+        </div>
 
-        <!-- Backward Pagination Button (Loads older movements via before_timestamp from HAR) -->
         <button
           id="btnLoadOlderMovements"
           type="button"
@@ -675,7 +704,7 @@
     </main>
 
     <!-- =================================================================== -->
-    <!-- MAIN VIEW 2: RECENT (MAX 8 ITEMS WITH ZERO-LAG OPTIMISTIC LOAD)     -->
+    <!-- MAIN VIEW 2: RECENT (MAX 8 ITEMS)                                   -->
     <!-- =================================================================== -->
     <main id="mainViewRecent" class="space-y-3 hidden view-anim">
       <section class="ui-card p-4">
@@ -693,7 +722,7 @@
     </main>
 
     <!-- =================================================================== -->
-    <!-- MAIN VIEW 3: SHIFT SHEET (INVENTORY AUDITOR SESSION & FINANCIALS)   -->
+    <!-- MAIN VIEW 3: SHIFT SHEET                                            -->
     <!-- =================================================================== -->
     <main id="mainViewShift" class="space-y-3 hidden view-anim">
       <section class="ui-card p-4 space-y-3.5">
@@ -715,7 +744,6 @@
           </button>
         </div>
 
-        <!-- Shift Auditor Name / Sheet Title Input -->
         <div class="flex items-center gap-2">
           <input
             id="shiftTitleInput"
@@ -727,30 +755,25 @@
           />
         </div>
 
-        <!-- 4 Financial & Unit Summary Cards (Removed Qty/EGP, Added Qty/EGP, Net Diff, Total Ops) -->
         <div class="grid grid-cols-2 gap-2">
-          <!-- Total Removed -->
           <div class="p-3 rounded-xl border" style="background: var(--ui-remove-soft); border-color: var(--ui-remove-border);">
             <div class="text-[11px] font-semibold" style="color: var(--ui-remove);">Total Removed (−)</div>
             <div id="shiftRemovedUnits" class="font-mono-num text-lg font-bold mt-0.5" style="color: var(--ui-remove);">−0 units</div>
             <div id="shiftRemovedValue" class="font-mono-num text-xs font-semibold mt-0.5" style="color: var(--ui-text);">0.00 EGP</div>
           </div>
 
-          <!-- Total Added -->
           <div class="p-3 rounded-xl border" style="background: var(--ui-add-soft); border-color: var(--ui-add-border);">
             <div class="text-[11px] font-semibold" style="color: var(--ui-add);">Total Added (+)</div>
             <div id="shiftAddedUnits" class="font-mono-num text-lg font-bold mt-0.5" style="color: var(--ui-add);">+0 units</div>
             <div id="shiftAddedValue" class="font-mono-num text-xs font-semibold mt-0.5" style="color: var(--ui-text);">0.00 EGP</div>
           </div>
 
-          <!-- Net Value Variance -->
           <div class="p-3 rounded-xl border" style="background: var(--ui-surface-subtle); border-color: var(--ui-border);">
             <div class="text-[11px] font-medium" style="color: var(--ui-text-secondary);">Net Value Variance</div>
             <div id="shiftNetValue" class="font-mono-num text-sm font-bold mt-1" style="color: var(--ui-text);">0.00 EGP</div>
             <div id="shiftNetUnits" class="font-mono-num text-[11px] mt-0.5" style="color: var(--ui-text-muted);">Net 0 units</div>
           </div>
 
-          <!-- Audited SKUs & Operations Count -->
           <div class="p-3 rounded-xl border" style="background: var(--ui-surface-subtle); border-color: var(--ui-border);">
             <div class="text-[11px] font-medium" style="color: var(--ui-text-secondary);">Shift Operations</div>
             <div id="shiftOpsCount" class="font-mono-num text-sm font-bold mt-1" style="color: var(--ui-text);">0 adjustments</div>
@@ -758,7 +781,6 @@
           </div>
         </div>
 
-        <!-- Export / Copy Shift Summary Buttons -->
         <div class="grid grid-cols-2 gap-2">
           <button
             id="btnCopyShiftReport"
@@ -778,7 +800,6 @@
           </button>
         </div>
 
-        <!-- Itemized Shift Ledger -->
         <div class="pt-2 border-t" style="border-color: var(--ui-border);">
           <div class="text-xs font-bold mb-2" style="color: var(--ui-text);">Shift Operations Ledger</div>
           <div id="shiftLedgerList" class="space-y-2"></div>
@@ -790,12 +811,11 @@
     <!-- MAIN VIEW 4: SETTINGS (LICENSE, AUDIO, VIBRATION, NIGHT MODE, LOGS) -->
     <!-- =================================================================== -->
     <main id="mainViewSettings" class="space-y-3 hidden view-anim">
-      <!-- License & Cloud Activation Card -->
       <section class="ui-card p-4 space-y-3">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2">
             <span id="popoverDot" class="w-2.5 h-2.5 rounded-full" style="background: #F59E0B;"></span>
-            <h2 id="popoverStatusText" class="text-sm font-bold" style="color: var(--ui-text);">Not Activated</h2>
+            <h2 id="popoverStatusText" class="text-sm font-bold" style="color: var(--ui-text);">Key Required</h2>
           </div>
           <span id="serverRoleBadge" class="text-[11px] font-semibold px-2.5 py-0.5 rounded-md" style="background: var(--ui-primary-soft); color: var(--ui-primary);">Full Edit</span>
         </div>
@@ -831,11 +851,9 @@
         </div>
       </section>
 
-      <!-- App Preferences Card (Sound, Vibration on Add/Remove Only, Night Mode, Rapid Scan) -->
       <section class="ui-card p-4 space-y-3">
         <h3 class="text-xs font-bold uppercase tracking-wider" style="color: var(--ui-text-secondary);">Scanner &amp; Interface Preferences</h3>
 
-        <!-- Sound Toggle -->
         <div class="flex items-center justify-between py-1">
           <div>
             <div class="text-xs font-semibold" style="color: var(--ui-text);">Audio Beep Feedback</div>
@@ -846,7 +864,6 @@
           </button>
         </div>
 
-        <!-- Vibration Toggle (Strictly Add & Remove Only) -->
         <div class="flex items-center justify-between py-1 border-t pt-2.5" style="border-color: var(--ui-border);">
           <div>
             <div class="text-xs font-semibold" style="color: var(--ui-text);">Haptic Vibration (Add / Remove Only)</div>
@@ -857,7 +874,6 @@
           </button>
         </div>
 
-        <!-- Night Mode Toggle -->
         <div class="flex items-center justify-between py-1 border-t pt-2.5" style="border-color: var(--ui-border);">
           <div>
             <div class="text-xs font-semibold" style="color: var(--ui-text);">Night Mode (Graphite Theme)</div>
@@ -868,7 +884,6 @@
           </button>
         </div>
 
-        <!-- Keep Camera Open After Scan Toggle -->
         <div class="flex items-center justify-between py-1 border-t pt-2.5" style="border-color: var(--ui-border);">
           <div>
             <div class="text-xs font-semibold" style="color: var(--ui-text);">Continuous Rapid Scan Mode</div>
@@ -880,7 +895,6 @@
         </div>
       </section>
 
-      <!-- Diagnostic Request & Error Logs Console (Moved inside Settings as requested) -->
       <section class="ui-card p-4 space-y-3">
         <div class="flex items-center justify-between gap-2">
           <div class="flex items-center gap-2">
@@ -961,12 +975,10 @@
         </button>
       </div>
 
-      <!-- Primary Reasons List -->
       <div class="overflow-y-auto space-y-1.5 pr-0.5 flex-1">
         <div class="text-[10px] font-bold uppercase tracking-wider px-1" style="color: var(--ui-text-muted);">Primary Reasons</div>
         <div id="reasonPrimaryList" class="space-y-1.5"></div>
 
-        <!-- Expand Button for Remaining Official HAR Reasons -->
         <button
           id="btnExpandMoreReasons"
           type="button"
@@ -979,14 +991,13 @@
           </svg>
         </button>
 
-        <!-- Expanded Extra Reasons Container -->
         <div id="reasonExpandedList" class="hidden space-y-1.5 pt-1.5"></div>
       </div>
     </div>
   </div>
 
   <!-- ===================================================================== -->
-  <!-- STOCK ADJUSTMENT CONFIRMATION MODAL (WITH INLINE CUSTOM REASON PICKER)-->
+  <!-- STOCK ADJUSTMENT CONFIRMATION MODAL                                   -->
   <!-- ===================================================================== -->
   <div
     id="confirmModalOverlay"
@@ -1014,7 +1025,6 @@
         </span>
       </div>
 
-      <!-- Stock Balance & Value Preview Box -->
       <div class="p-3 rounded-xl border space-y-1.5" style="background: var(--ui-surface-subtle); border-color: var(--ui-border);">
         <div class="flex items-center justify-between">
           <span class="text-xs font-medium" style="color: var(--ui-text-secondary);">On Hand Balance</span>
@@ -1030,7 +1040,6 @@
         </div>
       </div>
 
-      <!-- Premium Reason Trigger Button inside Confirmation Modal -->
       <div class="space-y-1.5">
         <label class="block text-[11px] font-semibold" style="color: var(--ui-text-secondary);">
           DMart Adjustment Reason
@@ -1046,7 +1055,6 @@
         </button>
       </div>
 
-      <!-- Optional Note inside Confirmation Modal -->
       <div class="space-y-1.5">
         <label for="modalNoteInput" class="block text-[11px] font-semibold" style="color: var(--ui-text-secondary);">
           Optional Note
@@ -1061,7 +1069,6 @@
         />
       </div>
 
-      <!-- Cancel & Confirm -->
       <div class="grid grid-cols-2 gap-2.5 pt-1">
         <button
           id="btnModalCancel"
@@ -1134,7 +1141,6 @@
         </button>
       </div>
 
-      <!-- Free 2D Pan & Pinch Viewport -->
       <div
         id="zoomViewport"
         class="w-full h-80 rounded-xl border overflow-hidden flex items-center justify-center relative select-none"
@@ -1150,7 +1156,6 @@
         />
       </div>
 
-      <!-- Continuous Manual Zoom Slider + Quick Buttons + Reset -->
       <div class="space-y-2">
         <div class="flex items-center gap-2.5">
           <span class="text-[11px] font-mono-num font-semibold w-9" id="zoomScaleReadout" style="color: var(--ui-primary);">1.0x</span>
@@ -1215,16 +1220,15 @@
     (function () {
       'use strict';
 
+      const NL = String.fromCharCode(10);
+      const UTF8_BOM = String.fromCharCode(0xFEFF);
       const SMOUHA_GATEWAY_URL = atob('aHR0cHM6Ly9zbW91aGEtcGFwcGVyLnN1bnRvbjg1Ny53b3JrZXJzLmRldg==');
       const UNSAFE_LOCATION_TYPES = new Set(['RECEIVING', 'PUTAWAY', 'STAGING']);
-      const RECENT_STORAGE_KEY = 'smouha_stock_recent_v52';
-      const SHIFT_STORAGE_KEY = 'smouha_stock_shift_v52';
-      const PREFS_STORAGE_KEY = 'smouha_stock_prefs_v52';
+      const RECENT_STORAGE_KEY = 'smouha_stock_recent_v53';
+      const SHIFT_STORAGE_KEY = 'smouha_stock_shift_v53';
+      const PREFS_STORAGE_KEY = 'smouha_stock_prefs_v53';
       const MAX_RECENT_ITEMS = 8;
 
-      // Exact HAR-Verified DMart Reasons (/v1/initial-payload Entry #43)
-      // Remove (DECREASE): Top 4 Primary in exact user-requested order + 15 Expandable
-      // Add (INCREASE): Top 1 Primary (Stock Addition) + 6 Expandable
       const DMART_REASONS_CONFIG = {
         DECREASE: {
           defaultCode: 'STOCK_SUBTRACTION',
@@ -1281,7 +1285,7 @@
         soundEnabled: true,
         vibrationEnabled: true,
         keepCameraOpen: false,
-        activeNav: 'SCANNER', // 'SCANNER' | 'RECENT' | 'SHIFT' | 'SETTINGS'
+        activeNav: 'SCANNER',
         currentProduct: null,
         selectedShelfLocation: null,
         recentItems: [],
@@ -1334,6 +1338,9 @@
         licenseDot: document.getElementById('licenseDot'),
         licenseStatusLabel: document.getElementById('licenseStatusLabel'),
         tokenTimerText: document.getElementById('tokenTimerText'),
+        unactivatedPromptBanner: document.getElementById('unactivatedPromptBanner'),
+        bannerLicenseInput: document.getElementById('bannerLicenseInput'),
+        btnBannerActivate: document.getElementById('btnBannerActivate'),
         mainViewScanner: document.getElementById('mainViewScanner'),
         mainViewRecent: document.getElementById('mainViewRecent'),
         mainViewShift: document.getElementById('mainViewShift'),
@@ -1471,6 +1478,12 @@
         btnVerifyUnblockServer: document.getElementById('btnVerifyUnblockServer')
       };
 
+      function on(node, evt, fn, opts) {
+        if (node && typeof node.addEventListener === 'function') {
+          node.addEventListener(evt, fn, opts || false);
+        }
+      }
+
       function addLog(tag, message, detailObj) {
         const ts = new Date().toTimeString().slice(0, 8);
         let detailStr = '';
@@ -1495,6 +1508,13 @@
           if (state.activeNav === 'SETTINGS') renderLogsView();
         }
       }
+
+      window.addEventListener('error', (e) => {
+        addLog('ERROR', e.message || 'Runtime exception', `${e.filename || ''}:${e.lineno || 0}`);
+      });
+      window.addEventListener('unhandledrejection', (e) => {
+        addLog('ERROR', 'Unhandled promise rejection', String(e.reason || ''));
+      });
 
       function getDeviceId() {
         try {
@@ -1545,11 +1565,11 @@
       }
 
       function syncPreferenceSwitchesUI() {
-        const setSw = (btn, on) => {
+        const setSw = (btn, onFlag) => {
           if (!btn) return;
-          btn.classList.toggle('on', on);
-          btn.setAttribute('aria-checked', on ? 'true' : 'false');
-          btn.style.background = on ? 'var(--ui-primary)' : 'var(--ui-border-strong)';
+          btn.classList.toggle('on', onFlag);
+          btn.setAttribute('aria-checked', onFlag ? 'true' : 'false');
+          btn.style.background = onFlag ? 'var(--ui-primary)' : 'var(--ui-border-strong)';
         };
         setSw(el.switchSound, state.soundEnabled);
         setSw(el.switchVibration, state.vibrationEnabled);
@@ -1559,7 +1579,7 @@
 
       function loadRecentFromStorage() {
         try {
-          const raw = localStorage.getItem(RECENT_STORAGE_KEY);
+          const raw = localStorage.getItem(RECENT_STORAGE_KEY) || localStorage.getItem('smouha_stock_recent_v52') || localStorage.getItem('smouha_stock_recent_v2');
           if (raw) {
             const parsed = JSON.parse(raw);
             if (Array.isArray(parsed)) {
@@ -1596,12 +1616,12 @@
         try {
           localStorage.setItem(RECENT_STORAGE_KEY, JSON.stringify(state.recentItems));
         } catch (e) {}
-        el.recentCountBadge.textContent = String(state.recentItems.length);
+        if (el.recentCountBadge) el.recentCountBadge.textContent = String(state.recentItems.length);
       }
 
       function loadShiftFromStorage() {
         try {
-          const raw = localStorage.getItem(SHIFT_STORAGE_KEY);
+          const raw = localStorage.getItem(SHIFT_STORAGE_KEY) || localStorage.getItem('smouha_stock_shift_v52');
           if (raw) {
             const parsed = JSON.parse(raw);
             if (parsed && Array.isArray(parsed.entries)) {
@@ -1609,7 +1629,7 @@
             }
           }
         } catch (e) {}
-        el.shiftTitleInput.value = state.shiftSession.title || '';
+        if (el.shiftTitleInput) el.shiftTitleInput.value = state.shiftSession.title || '';
         updateShiftBadgesUI();
       }
 
@@ -1648,15 +1668,14 @@
 
       function updateShiftBadgesUI() {
         const count = state.shiftSession.entries.length;
-        el.headerShiftCount.textContent = String(count);
-        el.shiftCountBadge.textContent = String(count);
+        if (el.headerShiftCount) el.headerShiftCount.textContent = String(count);
+        if (el.shiftCountBadge) el.shiftCountBadge.textContent = String(count);
       }
 
       // ============================================================================
       // STRICT VIBRATION & AUDIO ENGINE (VIBRATION ONLY ON STOCK ADD / REMOVE!)
       // ============================================================================
       function triggerStockEditVibration(mode) {
-        // Strictly vibrate ONLY on stock addition or removal as requested!
         if (!state.vibrationEnabled) return;
         const pat = mode === 'INCREASE' ? [25, 35, 35] : [45, 40, 55];
         try {
@@ -1723,6 +1742,7 @@
 
       let toastTimer = null;
       function showToast(msg, bgOverride) {
+        if (!el.toastMessage || !el.toastBox) return;
         el.toastMessage.textContent = msg;
         el.toastBox.style.background = bgOverride || 'var(--ui-primary)';
         el.toastBox.style.opacity = '1';
@@ -1785,11 +1805,13 @@
           el.popoverDot.style.background = 'var(--ui-add)';
           el.licenseStatusLabel.textContent = 'Active';
           el.popoverStatusText.textContent = 'Key Active';
+          if (el.unactivatedPromptBanner) el.unactivatedPromptBanner.classList.add('hidden');
         } else {
           el.licenseDot.style.background = '#F59E0B';
           el.popoverDot.style.background = '#F59E0B';
           el.licenseStatusLabel.textContent = 'Activate';
           el.popoverStatusText.textContent = 'Key Required';
+          if (el.unactivatedPromptBanner) el.unactivatedPromptBanner.classList.remove('hidden');
         }
         el.serverRoleBadge.textContent = state.role === 'VIEW_ONLY' ? 'View Only' : 'Full Edit';
         el.btnCopyDeviceId.textContent = getDeviceId();
@@ -1816,6 +1838,8 @@
         const cleanKey = String(rawKey || '').trim();
         if (!cleanKey) return false;
         state.licenseKey = cleanKey;
+        if (el.inputLicenseKey) el.inputLicenseKey.value = cleanKey;
+        if (el.bannerLicenseInput) el.bannerLicenseInput.value = cleanKey;
         const devId = getDeviceId();
         const endpoint = isPing ? '/api/mobile/ping' : '/api/mobile/verify';
 
@@ -1828,7 +1852,7 @@
               deviceId: devId,
               deviceLabel: 'Smouha Stock Mobile',
               licenseKey: cleanKey,
-              version: '5.2.0'
+              version: '5.3.0'
             })
           });
           const data = await res.json().catch(() => ({}));
@@ -1886,12 +1910,12 @@
         }
         if (!state.licenseActive) {
           addLog('ERROR', 'Cannot call DMart: License key not active', { path });
-          showToast('Activate your SmouhaMob key in Settings first', 'var(--ui-remove)');
-          switchBottomNav('SETTINGS');
+          showToast('Enter & activate your SmouhaMob key first', 'var(--ui-remove)');
+          if (el.unactivatedPromptBanner) el.unactivatedPromptBanner.classList.remove('hidden');
+          if (el.bannerLicenseInput) el.bannerLicenseInput.focus();
           return { ok: false, status: 401, error: 'NO_ACTIVE_KEY' };
         }
 
-        // 1. Direct Native Kotlin Bridge (Supports both im-bff-live-me and https://opd-live-me...)
         if (window.SmouhaNative && typeof window.SmouhaNative.dmartRequest === 'function') {
           try {
             if (typeof window.SmouhaNative.hasRamToken === 'function' && !window.SmouhaNative.hasRamToken()) {
@@ -1916,7 +1940,6 @@
           }
         }
 
-        // 2. Cloudflare Worker Authenticated Proxy Fallback
         try {
           const proxyRes = await fetch(SMOUHA_GATEWAY_URL + '/api/dmart/proxy', {
             method: 'POST',
@@ -1950,7 +1973,7 @@
       }
 
       // ============================================================================
-      // HAR-VERIFIED PRODUCT PARSERS (vendor_price, name_translated, locations)
+      // HAR-VERIFIED PRODUCT PARSERS
       // ============================================================================
       function extractBarcodes(p) {
         if (!p) return [];
@@ -1966,7 +1989,6 @@
 
       function extractPrice(p) {
         if (!p || typeof p !== 'object') return 0;
-        // HAR Entry #40: "vendor_price": {"783758": 96, "791515": 96}
         if (p.vendor_price && typeof p.vendor_price === 'object') {
           if (p.vendor_price['783758'] != null) return Number(p.vendor_price['783758']) || 0;
           const vals = Object.values(p.vendor_price);
@@ -2038,18 +2060,17 @@
       }
 
       // ============================================================================
-      // LIVE TYPEAHEAD TOP-10 PREFIX SEARCH (e.g. typing "elano")
+      // LIVE TYPEAHEAD TOP-10 PREFIX SEARCH
       // ============================================================================
       async function runTypeaheadSearch(rawQuery) {
         const q = String(rawQuery || '').trim();
-        if (q.length < 2) {
+        if (q.length < 2 || !state.licenseActive) {
           el.typeaheadDropdown.classList.add('hidden');
           return;
         }
         const mySeq = ++state.typeaheadSeq;
         const wh = state.warehouseId || 'd24a9f96-f6bc-43b0-af78-b7067f0c901c';
 
-        // 1. Query OPD Search v2 (HAR Entry #28 & #34) + fallback to IM-BFF /products
         let candidates = [];
         const opdUrl = `https://opd-live-me.deliveryhero.io/v2/entity/HF_EG/warehouse/${wh}/products/search`;
         const opdRes = await executeLiveDmartCall('POST', opdUrl, {
@@ -2076,7 +2097,6 @@
         }
 
         const qLower = q.toLowerCase();
-        // Prioritize products whose name starts with the query (e.g. "elano") first!
         const scored = candidates.map((p) => {
           const nameEn = String(p.name || p.name_translated?.['en-EG'] || '').trim();
           const nameAr = String(p.name_translated?.['ar-EG'] || '').trim();
@@ -2138,15 +2158,14 @@
       }
 
       // ============================================================================
-      // HAR-OPTIMIZED PRODUCT LOOKUP (1-Call /product/sku/{sku} + Optimistic Pre-Render)
+      // HAR-OPTIMIZED PRODUCT LOOKUP
       // ============================================================================
       function setLiveSyncBanner(visible, text) {
-        if (text) el.liveSyncText.textContent = text;
-        el.liveSyncBanner.classList.toggle('hidden', !visible);
+        if (text && el.liveSyncText) el.liveSyncText.textContent = text;
+        if (el.liveSyncBanner) el.liveSyncBanner.classList.toggle('hidden', !visible);
       }
 
       function clearStaleProductImageImmediately(skuLabel) {
-        // Immediately hide previous product image and show shimmer so old image NEVER lingers!
         state.imageRenderToken += 1;
         el.prodImage.classList.add('opacity-0');
         el.prodImage.removeAttribute('src');
@@ -2161,7 +2180,6 @@
         el.typeaheadDropdown.classList.add('hidden');
         state.selectedShelfLocation = null;
 
-        // If we have an optimistic snapshot (from Recent or Typeahead), render it in <10ms!
         if (optimisticSnapshot && optimisticSnapshot.sku) {
           clearStaleProductImageImmediately(optimisticSnapshot.sku);
           state.currentProduct = {
@@ -2195,7 +2213,6 @@
         let rawDetail = null;
         let matchedListRow = null;
 
-        // Fast Path 1: Direct HAR SKU endpoint (/v2/entity/HF_EG/warehouse/{wh}/product/sku/{sku})
         if (/^\d{4,8}$/.test(q)) {
           const directSkuPath = `/v2/entity/HF_EG/warehouse/${wh}/product/sku/${encodeURIComponent(q)}`;
           const skuRes = await executeLiveDmartCall('GET', directSkuPath, null);
@@ -2204,14 +2221,12 @@
           }
         }
 
-        // Fast Path 2: Barcode or Name Search -> then fetch detail
         if (!rawDetail) {
           const searchPath = `/v2/entity/HF_EG/warehouse/${wh}/products?per_page=20&page=1&sort=PRODUCT_NAME_ASC&query=${encodeURIComponent(q)}`;
           const searchRes = await executeLiveDmartCall('GET', searchPath, null);
           let items = searchRes.ok ? (searchRes.data?.items || searchRes.data?.data || []) : [];
 
           if (!Array.isArray(items) || items.length === 0) {
-            // Try OPD Search v2
             const opdUrl = `https://opd-live-me.deliveryhero.io/v2/entity/HF_EG/warehouse/${wh}/products/search`;
             const opdRes = await executeLiveDmartCall('POST', opdUrl, {
               sort: 'SORT_DEFAULT',
@@ -2267,7 +2282,6 @@
         const barcodes = extractBarcodes(rawDetail).concat(extractBarcodes(matchedListRow));
         const uniqueBarcodes = [...new Set(barcodes)];
 
-        // Fetch Movements Page 1 (before_timestamp=0)
         let mappedMovements = [];
         let totalMovements = 0;
         let nextMovementCursor = 0;
@@ -2317,7 +2331,7 @@
       }
 
       // ============================================================================
-      // BACKWARD MOVEMENTS HISTORY PAGINATION (HAR before_timestamp Cursor)
+      // BACKWARD MOVEMENTS HISTORY PAGINATION
       // ============================================================================
       async function loadOlderMovementsPage() {
         const p = state.currentProduct;
@@ -2365,7 +2379,6 @@
         const cfg = DMART_REASONS_CONFIG[mode];
         const currentCode = isRemove ? state.selectedDecreaseReason : state.selectedIncreaseReason;
 
-        // If current selected reason is in extra, auto-expand so user sees it selected
         if (cfg.extra.some((r) => r.code === currentCode)) {
           state.reasonSheetExpanded = true;
         }
@@ -2562,22 +2575,18 @@
           return;
         }
 
-        // 1. Trigger Vibration & Audio ONLY on successful Add / Remove!
         triggerStockEditVibration(mode);
         playSoundOnly(delta > 0 ? 'add' : 'remove');
 
-        // 2. Automatically reset Quantity Input back to 1 and reset defaults!
         el.qtyInput.value = '1';
         el.noteInput.value = '';
         el.modalNoteInput.value = '';
 
-        // 3. Record into Active Shift Sheet Ledger
         const afterQty = Math.max(0, beforeQty + delta);
         recordShiftOperation(p, delta, reasonCode, noteText, beforeQty, afterQty, chosenLoc.location);
 
         closeConfirmModal();
 
-        // 4. Refresh live product state from DMart
         await liveSearchDmartProduct(p.sku, {
           ...p,
           onHand: afterQty
@@ -2587,7 +2596,7 @@
       }
 
       // ============================================================================
-      // FULL DMART PRODUCT DETAILS DRAWER (ALL 16+ HAR FIELDS)
+      // FULL DMART PRODUCT DETAILS DRAWER
       // ============================================================================
       function openFullInfoModal() {
         const p = state.currentProduct;
@@ -2696,7 +2705,6 @@
         state.scanLock = true;
         addLog('SCAN', `Barcode decoded: ${code}`, '');
 
-        // Visual Green Flash + Freeze current video frame (NO black void flash!)
         el.cameraFlashOverlay.style.opacity = '1';
         el.cameraReticleBox.style.borderColor = '#22C55E';
         el.cameraStatusBadge.textContent = `Locked: ${code}`;
@@ -2753,7 +2761,6 @@
           el.cameraVideo.srcObject = stream;
           await el.cameraVideo.play();
 
-          // 1. Hardware NPU/GPU BarcodeDetector at 65ms (15+ scans/sec, 2x faster)
           if ('BarcodeDetector' in window) {
             el.cameraStatusBadge.textContent = 'HD 60fps · Point at barcode';
             const detector = new window.BarcodeDetector({
@@ -2772,7 +2779,6 @@
             return;
           }
 
-          // 2. Fallback to ZXing Continuous Video Decoder
           if (window.ZXing && window.ZXing.BrowserMultiFormatReader) {
             el.cameraStatusBadge.textContent = 'Scanning barcode (ZXing)...';
             state.zxingReader = new window.ZXing.BrowserMultiFormatReader();
@@ -2863,8 +2869,7 @@
         el.imageZoomModal.classList.remove('flex');
       }
 
-      // Touch & Mouse handlers for Free 2D Pan + Focal Pinch-to-Zoom + Point Double-Tap
-      el.zoomViewport.addEventListener('touchstart', (e) => {
+      on(el.zoomViewport, 'touchstart', (e) => {
         if (e.touches.length === 2) {
           state.zoom.dragging = false;
           const dx = e.touches[0].clientX - e.touches[1].clientX;
@@ -2877,7 +2882,6 @@
           const now = Date.now();
           const t = e.touches[0];
           if (now - state.zoom.lastTapAt < 280) {
-            // Double-tap at exact (x, y) point!
             const targetScale = state.zoom.scale < 2.2 ? 2.8 : state.zoom.scale < 4.2 ? 4.5 : 1;
             if (targetScale === 1) resetZoomAndPan();
             else zoomToPoint(targetScale, t.clientX, t.clientY);
@@ -2891,7 +2895,7 @@
         }
       }, { passive: true });
 
-      el.zoomViewport.addEventListener('touchmove', (e) => {
+      on(el.zoomViewport, 'touchmove', (e) => {
         if (e.touches.length === 2) {
           e.preventDefault();
           const dx = e.touches[0].clientX - e.touches[1].clientX;
@@ -2907,12 +2911,11 @@
         }
       }, { passive: false });
 
-      el.zoomViewport.addEventListener('touchend', () => {
+      on(el.zoomViewport, 'touchend', () => {
         state.zoom.dragging = false;
       });
 
-      // Mouse drag & double-click support for desktop/WebView testing
-      el.zoomViewport.addEventListener('mousedown', (e) => {
+      on(el.zoomViewport, 'mousedown', (e) => {
         state.zoom.dragging = true;
         state.zoom.startX = e.clientX - state.zoom.panX;
         state.zoom.startY = e.clientY - state.zoom.panY;
@@ -2926,21 +2929,21 @@
       window.addEventListener('mouseup', () => {
         state.zoom.dragging = false;
       });
-      el.zoomViewport.addEventListener('dblclick', (e) => {
+      on(el.zoomViewport, 'dblclick', (e) => {
         const targetScale = state.zoom.scale < 2.2 ? 2.8 : state.zoom.scale < 4.2 ? 4.5 : 1;
         if (targetScale === 1) resetZoomAndPan();
         else zoomToPoint(targetScale, e.clientX, e.clientY);
       });
 
-      el.zoomRangeSlider.addEventListener('input', (e) => {
+      on(el.zoomRangeSlider, 'input', (e) => {
         const val = parseFloat(e.target.value) || 1;
         const rect = el.zoomViewport.getBoundingClientRect();
         zoomToPoint(val, rect.left + rect.width / 2, rect.top + rect.height / 2);
       });
-      el.btnResetZoomPan.addEventListener('click', resetZoomAndPan);
+      on(el.btnResetZoomPan, 'click', resetZoomAndPan);
 
       // ============================================================================
-      // RENDERING VIEWS (PRODUCT, MOVEMENTS, RECENT, SHIFT SHEET, LOGS)
+      // RENDERING VIEWS
       // ============================================================================
       function renderProduct() {
         const p = state.currentProduct;
@@ -2958,7 +2961,6 @@
         const fallbackSvg = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120"><rect width="120" height="120" rx="22" fill="#EA580C"/><text x="60" y="66" text-anchor="middle" fill="#FFF" font-family="JetBrains Mono,monospace" font-weight="700" font-size="18">' + p.sku + '</text></svg>');
         const targetUrl = p.image || fallbackSvg;
 
-        // Race-condition-free image loader with instant skeleton shimmer
         const myToken = ++state.imageRenderToken;
         if (el.prodImage.getAttribute('data-loaded-url') !== targetUrl) {
           el.prodImage.classList.add('opacity-0');
@@ -3031,7 +3033,7 @@
 
         if (movs.length === 0) {
           el.movementsView.innerHTML = `
-            <div class="py-6 text-center text-xs" style="color: var(--ui-text-muted);">
+            <div class="py-5 text-center text-xs" style="color: var(--ui-text-muted);">
               ${p ? 'No recent movements recorded for this item.' : 'Scan a product to inspect its movement history.'}
             </div>
           `;
@@ -3108,7 +3110,6 @@
           btn.addEventListener('click', () => {
             el.scanSearchInput.value = item.sku;
             el.btnClearInput.classList.remove('hidden');
-            // Switch to Scanner immediately and render optimistic snapshot in <10ms!
             switchBottomNav('SCANNER');
             liveSearchDmartProduct(item.sku, item);
           });
@@ -3239,16 +3240,15 @@
       // ============================================================================
       // EVENT LISTENERS & INTERACTION BINDINGS
       // ============================================================================
-      el.navBtnScanner.addEventListener('click', () => switchBottomNav('SCANNER'));
-      el.navBtnRecent.addEventListener('click', () => switchBottomNav('RECENT'));
-      el.navBtnShift.addEventListener('click', () => switchBottomNav('SHIFT'));
-      el.navBtnSettings.addEventListener('click', () => switchBottomNav('SETTINGS'));
+      on(el.navBtnScanner, 'click', () => switchBottomNav('SCANNER'));
+      on(el.navBtnRecent, 'click', () => switchBottomNav('RECENT'));
+      on(el.navBtnShift, 'click', () => switchBottomNav('SHIFT'));
+      on(el.navBtnSettings, 'click', () => switchBottomNav('SETTINGS'));
 
-      el.btnHeaderShiftPill.addEventListener('click', () => switchBottomNav('SHIFT'));
-      el.btnLicensePopover.addEventListener('click', () => switchBottomNav('SETTINGS'));
+      on(el.btnHeaderShiftPill, 'click', () => switchBottomNav('SHIFT'));
+      on(el.btnLicensePopover, 'click', () => switchBottomNav('SETTINGS'));
 
-      // Preferences Switches
-      el.switchSound.addEventListener('click', () => {
+      on(el.switchSound, 'click', () => {
         state.soundEnabled = !state.soundEnabled;
         savePrefsToStorage();
         syncPreferenceSwitchesUI();
@@ -3256,7 +3256,7 @@
         showToast(state.soundEnabled ? 'Audio Beep On' : 'Audio Beep Off');
       });
 
-      el.switchVibration.addEventListener('click', () => {
+      on(el.switchVibration, 'click', () => {
         state.vibrationEnabled = !state.vibrationEnabled;
         savePrefsToStorage();
         syncPreferenceSwitchesUI();
@@ -3264,7 +3264,7 @@
         showToast(state.vibrationEnabled ? 'Vibration On (Add/Remove Only)' : 'Vibration Off');
       });
 
-      el.switchNightMode.addEventListener('click', () => {
+      on(el.switchNightMode, 'click', () => {
         state.theme = state.theme === 'stone' ? 'graphite' : 'stone';
         document.documentElement.setAttribute('data-theme', state.theme);
         savePrefsToStorage();
@@ -3272,14 +3272,13 @@
         showToast(state.theme === 'graphite' ? 'Night Mode Activated' : 'Daylight Mode Activated');
       });
 
-      el.switchKeepCamera.addEventListener('click', () => {
+      on(el.switchKeepCamera, 'click', () => {
         state.keepCameraOpen = !state.keepCameraOpen;
         savePrefsToStorage();
         syncPreferenceSwitchesUI();
         showToast(state.keepCameraOpen ? 'Continuous Rapid Scan On' : 'Single Scan Mode On');
       });
 
-      // Quantity Input Auto-Select on Focus/Tap & Quick Qty Pills
       const selectAllQtyInput = () => {
         try {
           el.qtyInput.select();
@@ -3288,67 +3287,71 @@
           }
         } catch (e) {}
       };
-      el.qtyInput.addEventListener('focus', selectAllQtyInput);
-      el.qtyInput.addEventListener('click', selectAllQtyInput);
-      el.qtyInput.addEventListener('mouseup', (e) => {
+      on(el.qtyInput, 'focus', selectAllQtyInput);
+      on(el.qtyInput, 'click', selectAllQtyInput);
+      on(el.qtyInput, 'mouseup', (e) => {
         e.preventDefault();
         selectAllQtyInput();
       });
 
       document.querySelectorAll('.quick-qty-btn').forEach((btn) => {
-        btn.addEventListener('click', () => {
+        on(btn, 'click', () => {
           const q = btn.getAttribute('data-quick-qty') || '1';
           el.qtyInput.value = q;
           showToast(`Quantity set to ${q}`);
         });
       });
 
-      // Custom Expandable Reason Sheet Triggers
-      el.btnOpenDecreaseReasons.addEventListener('click', () => openCustomReasonSheet('DECREASE'));
-      el.btnOpenIncreaseReasons.addEventListener('click', () => openCustomReasonSheet('INCREASE'));
-      el.btnModalReasonTrigger.addEventListener('click', () => {
+      on(el.btnOpenDecreaseReasons, 'click', () => openCustomReasonSheet('DECREASE'));
+      on(el.btnOpenIncreaseReasons, 'click', () => openCustomReasonSheet('INCREASE'));
+      on(el.btnModalReasonTrigger, 'click', () => {
         if (state.pendingModal) openCustomReasonSheet(state.pendingModal.mode);
       });
-      el.btnCloseReasonSheet.addEventListener('click', closeCustomReasonSheet);
-      el.customReasonOverlay.addEventListener('click', (e) => {
+      on(el.btnCloseReasonSheet, 'click', closeCustomReasonSheet);
+      on(el.customReasonOverlay, 'click', (e) => {
         if (e.target === el.customReasonOverlay) closeCustomReasonSheet();
       });
-      el.btnExpandMoreReasons.addEventListener('click', () => {
+      on(el.btnExpandMoreReasons, 'click', () => {
         state.reasonSheetExpanded = !state.reasonSheetExpanded;
         renderCustomReasonSheetOptions();
       });
 
-      // Full DMart Info Modal
-      el.btnOpenFullInfo.addEventListener('click', openFullInfoModal);
-      el.btnCloseFullInfo.addEventListener('click', closeFullInfoModal);
-      el.fullInfoModalOverlay.addEventListener('click', (e) => {
+      on(el.btnOpenFullInfo, 'click', openFullInfoModal);
+      on(el.btnCloseFullInfo, 'click', closeFullInfoModal);
+      on(el.fullInfoModalOverlay, 'click', (e) => {
         if (e.target === el.fullInfoModalOverlay) closeFullInfoModal();
       });
 
-      // License Activation
-      el.btnConnectLiveKey.addEventListener('click', async () => {
-        const key = (el.inputLicenseKey.value || '').trim();
+      async function handleActivateKey(rawInputVal, btnNode) {
+        const key = String(rawInputVal || '').trim();
         if (!key) {
           showToast('Enter Mobile Key (SmouhaMob-...)', 'var(--ui-remove)');
           return;
         }
         try { localStorage.setItem('smouha_license_key', key); } catch (e) {}
-        el.btnConnectLiveKey.disabled = true;
-        el.btnConnectLiveKey.textContent = '...';
+        if (btnNode) {
+          btnNode.disabled = true;
+          btnNode.textContent = '...';
+        }
         const ok = await verifyWithUnifiedGateway(key, false);
-        el.btnConnectLiveKey.disabled = false;
-        el.btnConnectLiveKey.textContent = 'Activate';
+        if (btnNode) {
+          btnNode.disabled = false;
+          btnNode.textContent = 'Activate';
+        }
         if (ok) {
           playSoundOnly('scan');
           showToast('Mobile Key Activated', 'var(--ui-add)');
         }
-      });
+      }
 
-      el.btnCopyDeviceId.addEventListener('click', () => {
+      on(el.btnConnectLiveKey, 'click', () => handleActivateKey(el.inputLicenseKey.value, el.btnConnectLiveKey));
+      on(el.btnBannerActivate, 'click', () => handleActivateKey(el.bannerLicenseInput.value, el.btnBannerActivate));
+
+      on(el.btnCopyDeviceId, 'click', () => {
         copyText(getDeviceId(), 'Device ID');
       });
 
-      el.btnVerifyUnblockServer.addEventListener('click', async () => {
+      on(el.btnVerifyUnblockServer, 'click', async () => {
         const candidateKey = (el.blockedKeyInput.value || state.licenseKey || '').trim();
         if (!candidateKey) {
           el.blockedVerifyStatus.textContent = 'Enter a valid SmouhaMob license key.';
@@ -3371,8 +3374,7 @@
         }
       });
 
-      // Search & Typeahead Prefix Bindings
-      el.scanSearchInput.addEventListener('input', (e) => {
+      on(el.scanSearchInput, 'input', (e) => {
         const val = e.target.value;
         el.btnClearInput.classList.toggle('hidden', !val);
         if (state.typeaheadTimer) clearTimeout(state.typeaheadTimer);
@@ -3385,7 +3387,7 @@
         }, 180);
       });
 
-      el.scanSearchInput.addEventListener('keydown', (e) => {
+      on(el.scanSearchInput, 'keydown', (e) => {
         if (e.key === 'Enter') {
           e.preventDefault();
           if (state.typeaheadTimer) clearTimeout(state.typeaheadTimer);
@@ -3394,33 +3396,32 @@
         }
       });
 
-      el.btnExecSearch.addEventListener('click', () => {
+      on(el.btnExecSearch, 'click', () => {
         if (state.typeaheadTimer) clearTimeout(state.typeaheadTimer);
         el.typeaheadDropdown.classList.add('hidden');
         liveSearchDmartProduct(el.scanSearchInput.value);
       });
 
-      el.btnClearInput.addEventListener('click', () => {
+      on(el.btnClearInput, 'click', () => {
         el.scanSearchInput.value = '';
         el.btnClearInput.classList.add('hidden');
         el.typeaheadDropdown.classList.add('hidden');
         el.scanSearchInput.focus();
       });
 
-      el.btnCloseTypeahead.addEventListener('click', () => {
+      on(el.btnCloseTypeahead, 'click', () => {
         el.typeaheadDropdown.classList.add('hidden');
       });
 
-      // Camera Controls
-      el.btnToggleCamera.addEventListener('click', toggleCamera);
+      on(el.btnToggleCamera, 'click', toggleCamera);
 
-      el.btnCameraZoom.addEventListener('click', () => {
+      on(el.btnCameraZoom, 'click', () => {
         state.cameraZoom = state.cameraZoom === 1 ? 2 : 1;
         el.btnCameraZoom.textContent = `${state.cameraZoom}x`;
         el.cameraVideo.style.transform = `scale(${state.cameraZoom})`;
       });
 
-      el.btnCameraTorch.addEventListener('click', async () => {
+      on(el.btnCameraTorch, 'click', async () => {
         state.torchOn = !state.torchOn;
         el.btnCameraTorch.style.background = state.torchOn ? '#EA580C' : 'rgba(0,0,0,0.7)';
         if (state.cameraStream) {
@@ -3433,50 +3434,45 @@
         }
       });
 
-      // Image Zoom Lightbox
-      el.btnOpenImageZoom.addEventListener('click', openImageZoomModal);
-      el.btnCloseImageZoom.addEventListener('click', closeImageZoomModal);
-      el.imageZoomModal.addEventListener('click', (e) => {
+      on(el.btnOpenImageZoom, 'click', openImageZoomModal);
+      on(el.btnCloseImageZoom, 'click', closeImageZoomModal);
+      on(el.imageZoomModal, 'click', (e) => {
         if (e.target === el.imageZoomModal) closeImageZoomModal();
       });
 
-      // Copy & Adjustment Triggers
-      el.btnCopySku.addEventListener('click', () => {
+      on(el.btnCopySku, 'click', () => {
         if (state.currentProduct) copyText(state.currentProduct.sku, 'SKU');
       });
-      el.btnCopyBarcode.addEventListener('click', () => {
+      on(el.btnCopyBarcode, 'click', () => {
         if (state.currentProduct) copyText(state.currentProduct.barcode, 'Barcode');
       });
 
-      el.btnTriggerDecrease.addEventListener('click', () => openConfirmModal('DECREASE'));
-      el.btnTriggerIncrease.addEventListener('click', () => openConfirmModal('INCREASE'));
-      el.btnModalCancel.addEventListener('click', closeConfirmModal);
-      el.btnModalConfirm.addEventListener('click', commitConfirmedAdjustment);
-      el.confirmModalOverlay.addEventListener('click', (e) => {
+      on(el.btnTriggerDecrease, 'click', () => openConfirmModal('DECREASE'));
+      on(el.btnTriggerIncrease, 'click', () => openConfirmModal('INCREASE'));
+      on(el.btnModalCancel, 'click', closeConfirmModal);
+      on(el.btnModalConfirm, 'click', commitConfirmedAdjustment);
+      on(el.confirmModalOverlay, 'click', (e) => {
         if (e.target === el.confirmModalOverlay) closeConfirmModal();
       });
 
-      // Movements Pagination & Refresh
-      el.btnLoadOlderMovements.addEventListener('click', loadOlderMovementsPage);
-      el.btnRefreshMovements.addEventListener('click', () => {
+      on(el.btnLoadOlderMovements, 'click', loadOlderMovementsPage);
+      on(el.btnRefreshMovements, 'click', () => {
         if (state.currentProduct) liveSearchDmartProduct(state.currentProduct.sku, state.currentProduct);
       });
 
-      // Recent Clear
-      el.btnClearRecent.addEventListener('click', () => {
+      on(el.btnClearRecent, 'click', () => {
         state.recentItems = [];
         try { localStorage.removeItem(RECENT_STORAGE_KEY); } catch (e) {}
         renderRecentView();
         showToast('Cleared Recent list');
       });
 
-      // Shift Sheet Controls
-      el.shiftTitleInput.addEventListener('input', (e) => {
+      on(el.shiftTitleInput, 'input', (e) => {
         state.shiftSession.title = e.target.value;
         saveShiftToStorage();
       });
 
-      el.btnNewShiftSheet.addEventListener('click', () => {
+      on(el.btnNewShiftSheet, 'click', () => {
         state.shiftSession = {
           id: 'SH-' + Date.now(),
           title: el.shiftTitleInput.value || '',
@@ -3488,7 +3484,7 @@
         showToast('Started new Shift Sheet');
       });
 
-      el.btnCopyShiftReport.addEventListener('click', () => {
+      on(el.btnCopyShiftReport, 'click', () => {
         const m = computeShiftMetrics();
         const title = state.shiftSession.title ? ` (${state.shiftSession.title})` : '';
         const lines = [
@@ -3504,11 +3500,10 @@
           const sign = op.delta > 0 ? `+${op.delta}` : `${op.delta}`;
           lines.push(`${idx + 1}. [${op.ts}] SKU ${op.sku} | ${op.name} | ${sign} (${op.lineValueEgp.toFixed(2)} EGP) | ${op.reasonLabel} | Shelf ${op.shelf}`);
         });
-        copyText(lines.join('
-'), 'Shift Report');
+        copyText(lines.join(NL), 'Shift Report');
       });
 
-      el.btnExportShiftCsv.addEventListener('click', () => {
+      on(el.btnExportShiftCsv, 'click', () => {
         if (state.shiftSession.entries.length === 0) {
           showToast('No shift operations to export yet', 'var(--ui-remove)');
           return;
@@ -3533,7 +3528,7 @@
             esc(op.note)
           ].join(','));
         });
-        const csvContent = '\uFEFF' + csvRows.join('\n');
+        const csvContent = UTF8_BOM + csvRows.join(NL);
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -3546,12 +3541,11 @@
         showToast('Shift CSV exported');
       });
 
-      // Logs Controls
-      el.btnCopyLogs.addEventListener('click', () => {
-        const text = state.diagnosticLogs.map((l) => `${l.ts} [${l.tag}] ${l.message} ${l.detail}`).join('\n');
+      on(el.btnCopyLogs, 'click', () => {
+        const text = state.diagnosticLogs.map((l) => `${l.ts} [${l.tag}] ${l.message} ${l.detail}`).join(NL);
         copyText(text || 'No logs', 'Logs');
       });
-      el.btnClearLogs.addEventListener('click', () => {
+      on(el.btnClearLogs, 'click', () => {
         state.diagnosticLogs = [];
         renderLogsView();
       });
@@ -3586,7 +3580,6 @@
         }
       });
 
-      // Live session countdown timer
       setInterval(() => {
         if (state.licenseActive && state.remainingSeconds > 0) {
           state.remainingSeconds -= 1;
@@ -3596,7 +3589,6 @@
         }
       }, 1000);
 
-      // Background 15s Ping to Unified Gateway
       setInterval(() => {
         try {
           const savedKey = localStorage.getItem('smouha_license_key');
@@ -3610,12 +3602,15 @@
       loadPrefsFromStorage();
       loadRecentFromStorage();
       loadShiftFromStorage();
-      addLog('BOOT', 'Smouha Stock v5.2 initialized', { deviceId: getDeviceId() });
+      addLog('BOOT', 'Smouha Stock v5.3 initialized', { deviceId: getDeviceId() });
       try {
         const savedKey = localStorage.getItem('smouha_license_key') || '';
         if (savedKey) {
           el.inputLicenseKey.value = savedKey;
+          el.bannerLicenseInput.value = savedKey;
           verifyWithUnifiedGateway(savedKey, false);
+        } else {
+          el.unactivatedPromptBanner.classList.remove('hidden');
         }
       } catch (e) {}
       renderAll();
