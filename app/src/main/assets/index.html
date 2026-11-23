@@ -3,20 +3,298 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover" />
-  <title>Smouha Stock — DS 60 Inventory Operations v5.5</title>
+  <title>Smouha Stock — DS 60 Inventory Operations v5.6</title>
 
   <!-- Google Fonts: Inter (UI) & JetBrains Mono (Tabular SKUs, Barcodes, Quantities, Timers) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
 
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- ZXing Universal 1D/2D Barcode Fallback Library (Non-blocking async load) -->
   <script src="https://unpkg.com/@zxing/library@0.23.0/umd/index.min.js" async></script>
 
   <style>
+
+    /* ==========================================================================
+       0. PRE-COMPILED STATIC CSS ENGINE (ZERO TAILWIND CDN RUNTIME OVERHEAD)
+       Compatible with Android 9+ WebView (Chromium 69 to 152+)
+       ========================================================================== */
+    *, ::before, ::after { box-sizing: border-box; border-width: 0; border-style: solid; border-color: var(--ui-border); }
+    html { line-height: 1.5; -webkit-text-size-adjust: 100%; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    body { margin: 0; line-height: inherit; min-height: 100vh; min-height: 100dvh; }
+    h1, h2, h3, h4, p { margin: 0; }
+    button, input, select, textarea { font-family: inherit; font-size: 100%; font-weight: inherit; line-height: inherit; color: inherit; margin: 0; padding: 0; background-color: transparent; }
+    button, select { text-transform: none; }
+    button, [type='button'] { -webkit-appearance: button; cursor: pointer; }
+    img, svg, video, canvas { display: block; vertical-align: middle; }
+    img, video { max-width: 100%; height: auto; }
+
+    .antialiased { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+    .selection\:bg-orange-500 ::selection, .selection\:bg-orange-500::selection { background-color: #f97316; color: #ffffff; }
+
+    /* Positioning & Z-Index */
+    .static { position: static; }
+    .fixed { position: fixed; }
+    .absolute { position: absolute; }
+    .relative { position: relative; }
+    .sticky { position: -webkit-sticky; position: sticky; }
+    .inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
+    .top-0 { top: 0px; }
+    .top-1\.5 { top: 0.375rem; }
+    .top-2\.5 { top: 0.625rem; }
+    .top-3\.5 { top: 0.875rem; }
+    .top-\[58px\] { top: 58px; }
+    .right-0 { right: 0px; }
+    .right-1 { right: 0.25rem; }
+    .right-1\.5 { right: 0.375rem; }
+    .right-2\.5 { right: 0.625rem; }
+    .right-9 { right: 2.25rem; }
+    .bottom-1 { bottom: 0.25rem; }
+    .bottom-20 { bottom: 5rem; }
+    .left-0 { left: 0px; }
+    .left-2\.5 { left: 0.625rem; }
+    .left-1\/2 { left: 50%; }
+    .-translate-x-1\/2 { -webkit-transform: translateX(-50%); transform: translateX(-50%); }
+    .z-10 { z-index: 10; }
+    .z-40 { z-index: 40; }
+    .z-50 { z-index: 50; }
+    .z-\[100\] { z-index: 100; }
+    .z-\[110\] { z-index: 110; }
+
+    /* Display & Flexbox & Grid */
+    .block { display: block; }
+    .inline-flex { display: inline-flex; }
+    .flex { display: flex; }
+    .grid { display: grid; }
+    .hidden { display: none !important; }
+    .flex-1 { flex: 1 1 0%; }
+    .shrink-0 { flex-shrink: 0; }
+    .flex-col { flex-direction: column; }
+    .flex-wrap { flex-wrap: wrap; }
+    .items-start { align-items: flex-start; }
+    .items-end { align-items: flex-end; }
+    .items-center { align-items: center; }
+    .justify-center { justify-content: center; }
+    .justify-between { justify-content: space-between; }
+    .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid-cols-12 { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+    .col-span-4 { grid-column: span 4 / span 4; }
+    .gap-1 { gap: 0.25rem; }
+    .gap-1\.5 { gap: 0.375rem; }
+    .gap-2 { gap: 0.5rem; }
+    .gap-2\.5 { gap: 0.625rem; }
+    .gap-3 { gap: 0.75rem; }
+
+    /* Spacing: Space-Y & Divide-Y (Compatible with older Chromium) */
+    .space-y-0\.5 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.125rem; }
+    .space-y-1 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.25rem; }
+    .space-y-1\.5 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.375rem; }
+    .space-y-2 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.5rem; }
+    .space-y-2\.5 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.625rem; }
+    .space-y-3 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.75rem; }
+    .space-y-3\.5 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.875rem; }
+    .space-y-4 > :not([hidden]) ~ :not([hidden]) { margin-top: 1rem; }
+    .space-y-5 > :not([hidden]) ~ :not([hidden]) { margin-top: 1.25rem; }
+    .divide-y > :not([hidden]) ~ :not([hidden]) { border-top-width: 1px; border-color: var(--ui-border); }
+
+    /* Sizing (Width & Height with Android 9 vh fallbacks) */
+    .w-2 { width: 0.5rem; }
+    .w-2\.5 { width: 0.625rem; }
+    .w-3\.5 { width: 0.875rem; }
+    .w-4 { width: 1rem; }
+    .w-5 { width: 1.25rem; }
+    .w-6 { width: 1.5rem; }
+    .w-8 { width: 2rem; }
+    .w-9 { width: 2.25rem; }
+    .w-10 { width: 2.5rem; }
+    .w-11 { width: 2.75rem; }
+    .w-12 { width: 3rem; }
+    .w-16 { width: 4rem; }
+    .w-24 { width: 6rem; }
+    .w-64 { width: 16rem; }
+    .w-full { width: 100%; }
+    .min-w-0 { min-width: 0px; }
+    .max-w-xs { max-width: 20rem; }
+    .max-w-sm { max-width: 24rem; }
+    .max-w-md { max-width: 28rem; }
+    .max-w-full { max-width: 100%; }
+    .max-w-\[155px\] { max-width: 155px; }
+    .max-w-\[205px\] { max-width: 205px; }
+
+    .h-0\.5 { height: 0.125rem; }
+    .h-1 { height: 0.25rem; }
+    .h-1\.5 { height: 0.375rem; }
+    .h-2 { height: 0.5rem; }
+    .h-2\.5 { height: 0.625rem; }
+    .h-3\.5 { height: 0.875rem; }
+    .h-4 { height: 1rem; }
+    .h-5 { height: 1.25rem; }
+    .h-6 { height: 1.5rem; }
+    .h-7 { height: 1.75rem; }
+    .h-8 { height: 2rem; }
+    .h-9 { height: 2.25rem; }
+    .h-10 { height: 2.5rem; }
+    .h-11 { height: 2.75rem; }
+    .h-12 { height: 3rem; }
+    .h-16 { height: 4rem; }
+    .h-28 { height: 7rem; }
+    .h-52 { height: 13rem; }
+    .h-80 { height: 20rem; }
+    .h-full { height: 100%; }
+    .max-h-72 { max-height: 18rem; }
+    .max-h-80 { max-height: 20rem; }
+    .max-h-full { max-height: 100%; }
+    .max-h-\[82dvh\] { max-height: 82vh; max-height: 82dvh; }
+    .max-h-\[85dvh\] { max-height: 85vh; max-height: 85dvh; }
+
+    /* Padding & Margin */
+    .p-0\.5 { padding: 0.125rem; }
+    .p-1 { padding: 0.25rem; }
+    .p-2 { padding: 0.5rem; }
+    .p-2\.5 { padding: 0.625rem; }
+    .p-3 { padding: 0.75rem; }
+    .p-3\.5 { padding: 0.875rem; }
+    .p-4 { padding: 1rem; }
+    .p-5 { padding: 1.25rem; }
+    .p-6 { padding: 1.5rem; }
+    .px-1 { padding-left: 0.25rem; padding-right: 0.25rem; }
+    .px-1\.5 { padding-left: 0.375rem; padding-right: 0.375rem; }
+    .px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
+    .px-2\.5 { padding-left: 0.625rem; padding-right: 0.625rem; }
+    .px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+    .px-3\.5 { padding-left: 0.875rem; padding-right: 0.875rem; }
+    .px-4 { padding-left: 1rem; padding-right: 1rem; }
+    .py-0\.2 { padding-top: 0.05rem; padding-bottom: 0.05rem; }
+    .py-0\.5 { padding-top: 0.125rem; padding-bottom: 0.125rem; }
+    .py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+    .py-1\.5 { padding-top: 0.375rem; padding-bottom: 0.375rem; }
+    .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+    .py-2\.5 { padding-top: 0.625rem; padding-bottom: 0.625rem; }
+    .py-5 { padding-top: 1.25rem; padding-bottom: 1.25rem; }
+    .py-6 { padding-top: 1.5rem; padding-bottom: 1.5rem; }
+    .py-7 { padding-top: 1.75rem; padding-bottom: 1.75rem; }
+    .py-8 { padding-top: 2rem; padding-bottom: 2rem; }
+    .pt-0\.5 { padding-top: 0.125rem; }
+    .pt-1 { padding-top: 0.25rem; }
+    .pt-1\.5 { padding-top: 0.375rem; }
+    .pt-2 { padding-top: 0.5rem; }
+    .pt-2\.5 { padding-top: 0.625rem; }
+    .pt-3 { padding-top: 0.75rem; }
+    .pb-1 { padding-bottom: 0.25rem; }
+    .pb-2 { padding-bottom: 0.5rem; }
+    .pb-4 { padding-bottom: 1rem; }
+    .pl-8 { padding-left: 2rem; }
+    .pr-0\.5 { padding-right: 0.125rem; }
+    .pr-2 { padding-right: 0.5rem; }
+    .pr-14 { padding-right: 3.5rem; }
+    .mx-auto { margin-left: auto; margin-right: auto; }
+    .mt-0\.5 { margin-top: 0.125rem; }
+    .mt-1 { margin-top: 0.25rem; }
+    .mt-1\.5 { margin-top: 0.375rem; }
+    .mt-2 { margin-top: 0.5rem; }
+    .mt-2\.5 { margin-top: 0.625rem; }
+    .mt-3 { margin-top: 0.75rem; }
+    .mt-3\.5 { margin-top: 0.875rem; }
+    .mb-1 { margin-bottom: 0.25rem; }
+    .mb-3 { margin-bottom: 0.75rem; }
+
+    /* Overflow & Object Fit */
+    .overflow-hidden { overflow: hidden; }
+    .overflow-x-auto { overflow-x: auto; }
+    .overflow-y-auto { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+    .object-contain { object-fit: contain; }
+    .object-cover { object-fit: cover; }
+
+    /* Typography */
+    .text-\[10px\] { font-size: 10px; line-height: 14px; }
+    .text-\[11px\] { font-size: 11px; line-height: 16px; }
+    .text-xs { font-size: 0.75rem; line-height: 1rem; }
+    .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+    .text-\[14\.5px\] { font-size: 14.5px; line-height: 1.35; }
+    .text-base { font-size: 1rem; line-height: 1.5rem; }
+    .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+    .text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+    .text-2xl { font-size: 1.5rem; line-height: 2rem; }
+    .font-normal { font-weight: 400; }
+    .font-medium { font-weight: 500; }
+    .font-semibold { font-weight: 600; }
+    .font-bold { font-weight: 700; }
+    .font-extrabold { font-weight: 800; }
+    .uppercase { text-transform: uppercase; }
+    .underline { text-decoration: underline; }
+    .tracking-tight { letter-spacing: -0.025em; }
+    .tracking-wider { letter-spacing: 0.05em; }
+    .leading-none { line-height: 1; }
+    .leading-tight { line-height: 1.25; }
+    .leading-snug { line-height: 1.375; }
+    .leading-relaxed { line-height: 1.625; }
+    .text-left { text-align: left; }
+    .text-center { text-align: center; }
+    .text-right { text-align: right; }
+    .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .break-words { overflow-wrap: break-word; word-wrap: break-word; }
+    .break-all { word-break: break-all; }
+    .whitespace-nowrap { white-space: nowrap; }
+
+    /* Colors, Borders & Shadows */
+    .text-white { color: #ffffff; }
+    .text-white\/80 { color: rgba(255, 255, 255, 0.8); }
+    .text-white\/95 { color: rgba(255, 255, 255, 0.95); }
+    .bg-\[\#0F0E0D\] { background-color: #0F0E0D; }
+    .bg-black\/60 { background-color: rgba(0, 0, 0, 0.6); }
+    .bg-black\/70 { background-color: rgba(0, 0, 0, 0.7); }
+    .bg-orange-500 { background-color: #f97316; }
+    .border { border-width: 1px; }
+    .border-2 { border-width: 2px; }
+    .border-t { border-top-width: 1px; }
+    .border-b { border-bottom-width: 1px; }
+    .border-orange-500 { border-color: #f97316; }
+    .border-orange-400\/75 { border-color: rgba(251, 146, 60, 0.75); }
+    .border-t-transparent { border-top-color: transparent; }
+    .rounded { border-radius: 0.25rem; }
+    .rounded-md { border-radius: 0.375rem; }
+    .rounded-lg { border-radius: 0.5rem; }
+    .rounded-xl { border-radius: 0.75rem; }
+    .rounded-2xl { border-radius: 1rem; }
+    .rounded-full { border-radius: 9999px; }
+    .shadow-sm { box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
+    .shadow-md { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1); }
+    .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.15), 0 4px 6px -4px rgba(0, 0, 0, 0.1); }
+    .shadow-\[0_0_12px_\#f97316\] { box-shadow: 0 0 12px #f97316; }
+
+    /* Interactivity, Transitions & Keyframe Animations */
+    .opacity-0 { opacity: 0; }
+    .pointer-events-none { pointer-events: none; }
+    .select-none { -webkit-user-select: none; user-select: none; }
+    .cursor-pointer { cursor: pointer; }
+    .focus\:outline-none:focus { outline: 2px solid transparent; outline-offset: 2px; }
+    .active\:scale-95:active { -webkit-transform: scale(0.95); transform: scale(0.95); }
+    .hover\:opacity-90:hover { opacity: 0.9; }
+    .hover\:opacity-95:hover { opacity: 0.95; }
+    .transition-all { transition-property: all; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
+    .transition-colors { transition-property: color, background-color, border-color; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
+    .transition-opacity { transition-property: opacity; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
+    .transition-transform { transition-property: -webkit-transform, transform; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
+    .duration-150 { transition-duration: 150ms; }
+    .duration-200 { transition-duration: 200ms; }
+
+    @keyframes uiSpin { to { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }
+    .animate-spin { -webkit-animation: uiSpin 1s linear infinite; animation: uiSpin 1s linear infinite; }
+    @keyframes uiPing { 75%, 100% { -webkit-transform: scale(2); transform: scale(2); opacity: 0; } }
+    .animate-ping { -webkit-animation: uiPing 1s cubic-bezier(0, 0, 0.2, 1) infinite; animation: uiPing 1s cubic-bezier(0, 0, 0.2, 1) infinite; }
+
+    @media (min-width: 640px) {
+      .sm\:items-center { align-items: center; }
+    }
+
+    /* Lite Performance Mode for Older Android 9 GPUs (Disables costly backdrop-filter blur) */
+    html[data-lite-gpu="true"] [style*="backdrop-filter"] {
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+
     /* ==========================================================================
        1. DESIGN TOKENS (LIGHT WARM STONE DEFAULT + GRAPHITE NIGHT MODE)
        ========================================================================== */
@@ -1443,6 +1721,22 @@
     (function () {
       'use strict';
 
+      // ES2017 Universal Compatibility Helpers (Android 9+ / Chromium 69+)
+      function g(obj, k1, k2, k3) {
+        if (obj == null) return undefined;
+        var v = obj[k1];
+        if (k2 === undefined || v == null) return v;
+        v = v[k2];
+        if (k3 === undefined || v == null) return v;
+        return v[k3];
+      }
+      function nn() {
+        for (var i = 0; i < arguments.length; i++) {
+          if (arguments[i] !== null && arguments[i] !== undefined) return arguments[i];
+        }
+        return undefined;
+      }
+
       const NL = String.fromCharCode(10);
       const UTF8_BOM = String.fromCharCode(0xFEFF);
       const SMOUHA_GATEWAY_URL = atob('aHR0cHM6Ly9zbW91aGEtcGFwcGVyLnN1bnRvbjg1Ny53b3JrZXJzLmRldg==');
@@ -1506,7 +1800,7 @@
 
       // Pure HTML escaper (Strix DOM XSS protection)
       function escHtml(val) {
-        return String(val ?? '')
+        return String(nn(val, ''))
           .replace(/&/g, '&amp;')
           .replace(/</g, '&lt;')
           .replace(/>/g, '&gt;')
@@ -2223,7 +2517,7 @@
               deviceId: devId,
               deviceLabel: 'Smouha Stock Mobile',
               licenseKey: cleanKey,
-              version: '5.5.0'
+              version: '5.6.0'
             })
           });
           const data = await res.json().catch(() => ({}));
@@ -2355,14 +2649,14 @@
       // Request 3: Always resolve English product name for Main UI & Search
       function extractEnglishName(rawDetail, matchedListRow, fallbackSku) {
         const candidates = [
-          rawDetail?.name_translated?.['en-EG'],
-          rawDetail?.name_translated?.['en'],
-          rawDetail?.name_en,
-          matchedListRow?.name_translated?.['en-EG'],
-          matchedListRow?.name_translated?.['en'],
-          matchedListRow?.name_en,
-          rawDetail?.name,
-          matchedListRow?.name
+          g(rawDetail, 'name_translated', 'en-EG'),
+          g(rawDetail, 'name_translated', 'en'),
+          g(rawDetail, 'name_en'),
+          g(matchedListRow, 'name_translated', 'en-EG'),
+          g(matchedListRow, 'name_translated', 'en'),
+          g(matchedListRow, 'name_en'),
+          g(rawDetail, 'name'),
+          g(matchedListRow, 'name')
         ];
         // Prefer candidate without Arabic characters first
         for (const c of candidates) {
@@ -2382,10 +2676,10 @@
 
       function extractArabicName(rawDetail, matchedListRow) {
         return String(
-          rawDetail?.name_translated?.['ar-EG'] ||
-          rawDetail?.name_translated?.['ar'] ||
-          matchedListRow?.name_translated?.['ar-EG'] ||
-          matchedListRow?.name_translated?.['ar'] ||
+          g(rawDetail, 'name_translated', 'ar-EG') ||
+          g(rawDetail, 'name_translated', 'ar') ||
+          g(matchedListRow, 'name_translated', 'ar-EG') ||
+          g(matchedListRow, 'name_translated', 'ar') ||
           ''
         ).trim();
       }
@@ -2403,7 +2697,7 @@
         } else if (Array.isArray(p.vendors) && p.vendors.length > 0 && p.vendors[0].price != null) {
           rawVal = Number(p.vendors[0].price) || 0;
         } else {
-          rawVal = Number(p.selling_price ?? p.price ?? p.unit_price ?? 0) || 0;
+          rawVal = Number(nn(p.selling_price, p.price, p.unit_price, 0)) || 0;
         }
         return Number(formatPrice(rawVal)) || 0;
       }
@@ -2430,7 +2724,7 @@
       }
 
       function pickSafeLocations(prodDetail) {
-        const rows = prodDetail?.locations_with_expiry_date || prodDetail?.locations || prodDetail?.stock_locations || [];
+        const rows = g(prodDetail, 'locations_with_expiry_date') || g(prodDetail, 'locations') || g(prodDetail, 'stock_locations') || [];
         if (!Array.isArray(rows)) return [];
         return rows.filter((r) => {
           const t = String(r.location_type || r.type || 'NORMAL').toUpperCase();
@@ -2441,16 +2735,16 @@
       function pickBestShelfLocation(prodDetail, mode, qty) {
         let safe = pickSafeLocations(prodDetail);
         if (!safe.length) {
-          const allRows = prodDetail?.locations_with_expiry_date || prodDetail?.locations || prodDetail?.stock_locations || [];
+          const allRows = g(prodDetail, 'locations_with_expiry_date') || g(prodDetail, 'locations') || g(prodDetail, 'stock_locations') || [];
           if (Array.isArray(allRows) && allRows.length > 0) {
             safe = allRows;
           } else {
-            const fallbackLoc = String(prodDetail?.location || state.currentProduct?.location || '').trim();
+            const fallbackLoc = String(g(prodDetail, 'location') || g(state.currentProduct, 'location') || '').trim();
             return {
               location: (fallbackLoc && fallbackLoc !== '—') ? fallbackLoc : 'DEFAULT',
-              expiry: prodDetail?.nearest_expiry ? String(prodDetail.nearest_expiry).slice(0, 10) : 'N/A',
-              rawExpiryIso: prodDetail?.nearest_expiry || null,
-              qtyBefore: Number(prodDetail?.on_hand_quantity ?? state.currentProduct?.onHand ?? 0) || 0
+              expiry: g(prodDetail, 'nearest_expiry') ? String(prodDetail.nearest_expiry).slice(0, 10) : 'N/A',
+              rawExpiryIso: g(prodDetail, 'nearest_expiry') || null,
+              qtyBefore: Number(nn(g(prodDetail, 'on_hand_quantity'), g(state.currentProduct, 'onHand'), 0)) || 0
             };
           }
         }
@@ -2461,22 +2755,22 @@
               location: manualMatch.location || manualMatch.location_code || manualMatch.code,
               expiry: manualMatch.expiry_date ? String(manualMatch.expiry_date).slice(0, 10) : 'N/A',
               rawExpiryIso: manualMatch.expiry_date || null,
-              qtyBefore: Number(manualMatch.qty ?? manualMatch.quantity ?? 0)
+              qtyBefore: Number(nn(manualMatch.qty, manualMatch.quantity, 0))
             };
           }
         }
         const usable = safe.filter((r) => {
           if (mode !== 'DECREASE') return true;
-          return Number(r.qty ?? r.quantity ?? 0) >= qty;
+          return Number(nn(r.qty, r.quantity, 0)) >= qty;
         });
         const pool = usable.length ? usable : safe;
-        pool.sort((a, b) => Number(b.qty ?? b.quantity ?? 0) - Number(a.qty ?? a.quantity ?? 0));
+        pool.sort((a, b) => Number(nn(b.qty, b.quantity, 0)) - Number(nn(a.qty, a.quantity, 0)));
         const chosen = pool[0];
         return {
           location: chosen.location || chosen.location_code || chosen.code || 'DEFAULT',
           expiry: chosen.expiry_date ? String(chosen.expiry_date).slice(0, 10) : 'N/A',
           rawExpiryIso: chosen.expiry_date || null,
-          qtyBefore: Number(chosen.qty ?? chosen.quantity ?? 0)
+          qtyBefore: Number(nn(chosen.qty, chosen.quantity, 0))
         };
       }
 
@@ -2495,8 +2789,8 @@
           type: m.event_type || 'Movement',
           ref,
           note: noteText,
-          delta: Number(m.on_hand_qty_delta ?? m.reserved_qty_delta ?? 0),
-          balance: Number(m.on_hand_qty ?? fallbackBalance ?? 0),
+          delta: Number(nn(m.on_hand_qty_delta, m.reserved_qty_delta, 0)),
+          balance: Number(nn(m.on_hand_qty, fallbackBalance, 0)),
           time: tsStr
         };
       }
@@ -2554,13 +2848,13 @@
 
         if (mySeq !== state.typeaheadSeq) return;
 
-        if (opdRes.ok && Array.isArray(opdRes.data?.products)) {
+        if (opdRes.ok && Array.isArray(g(opdRes.data, 'products'))) {
           candidates = opdRes.data.products;
         } else {
           const bffPath = `/v2/entity/HF_EG/warehouse/${wh}/products?per_page=50&page=1&sort=PRODUCT_NAME_ASC&query=${encodeURIComponent(q)}`;
           const bffRes = await executeLiveDmartCall('GET', bffPath, null);
           if (mySeq !== state.typeaheadSeq) return;
-          candidates = bffRes.data?.items || bffRes.data?.data || [];
+          candidates = g(bffRes.data, 'items') || g(bffRes.data, 'data') || [];
         }
 
         if (!Array.isArray(candidates) || candidates.length === 0) {
@@ -2584,7 +2878,7 @@
             name: nameEn,
             nameAr: extractArabicName(p, null),
             price: extractPrice(p),
-            onHand: Number(p.on_hand_quantity ?? p.quantity ?? 0) || 0,
+            onHand: Number(nn(p.on_hand_quantity, p.quantity, 0)) || 0,
             image: extractImageUrl(p, null, '')
           };
         });
@@ -2728,7 +3022,7 @@
           const searchPath = `/v2/entity/HF_EG/warehouse/${wh}/products?per_page=20&page=1&sort=PRODUCT_NAME_ASC&query=${encodeURIComponent(q)}`;
           const searchRes = await executeLiveDmartCall('GET', searchPath, null);
           if (myLookupSeq !== state.lookupSeq) return false;
-          let items = searchRes.ok ? (searchRes.data?.items || searchRes.data?.data || []) : [];
+          let items = searchRes.ok ? (g(searchRes.data, 'items') || g(searchRes.data, 'data') || []) : [];
 
           if (!Array.isArray(items) || items.length === 0) {
             const opdUrl = `https://opd-live-me.deliveryhero.io/v2/entity/HF_EG/warehouse/${wh}/products/search`;
@@ -2739,7 +3033,7 @@
               filter: {}
             });
             if (myLookupSeq !== state.lookupSeq) return false;
-            if (opdRes.ok && Array.isArray(opdRes.data?.products)) {
+            if (opdRes.ok && Array.isArray(g(opdRes.data, 'products'))) {
               items = opdRes.data.products;
             }
           }
@@ -2779,11 +3073,11 @@
           if (!rawDetail) rawDetail = matchedListRow;
         }
 
-        const productId = rawDetail.id || rawDetail.productId || matchedListRow?.id || '';
+        const productId = rawDetail.id || rawDetail.productId || g(matchedListRow, 'id') || '';
         const safeLocs = pickSafeLocations(rawDetail);
         const totalSafeOnHand = safeLocs.length > 0
-          ? safeLocs.reduce((acc, r) => acc + (Number(r.qty ?? r.quantity ?? 0) || 0), 0)
-          : (Number(rawDetail.on_hand_quantity ?? matchedListRow?.on_hand_quantity ?? 0) || 0);
+          ? safeLocs.reduce((acc, r) => acc + (Number(nn(r.qty, r.quantity, 0)) || 0), 0)
+          : (Number(nn(rawDetail.on_hand_quantity, g(matchedListRow, 'on_hand_quantity'), 0)) || 0);
 
         const bestLoc = pickBestShelfLocation(rawDetail, 'DECREASE', 1);
         const barcodes = extractBarcodes(rawDetail).concat(extractBarcodes(matchedListRow));
@@ -2797,14 +3091,14 @@
           const movPath = `/v1/entity/HF_EG/warehouse/${wh}/product/${productId}/recent-movements?before_timestamp=0&max_results=8&with_warehouse_name=true`;
           const movRes = await executeLiveDmartCall('GET', movPath, null);
           if (myLookupSeq !== state.lookupSeq) return false;
-          const movItems = (movRes.ok && Array.isArray(movRes.data?.items)) ? movRes.data.items : [];
+          const movItems = (movRes.ok && Array.isArray(g(movRes.data, 'items'))) ? movRes.data.items : [];
           mappedMovements = movItems.map((m) => mapMovementRow(m, totalSafeOnHand));
-          totalMovements = Number(movRes.data?.result_stats?.total_results ?? mappedMovements.length) || mappedMovements.length;
-          nextMovementCursor = Number(movRes.data?.result_stats?.last_result_timestamp || 0) || 0;
+          totalMovements = Number(nn(g(movRes.data, 'result_stats', 'total_results'), mappedMovements.length)) || mappedMovements.length;
+          nextMovementCursor = Number(g(movRes.data, 'result_stats', 'last_result_timestamp') || 0) || 0;
         }
 
-        const resolvedSku = String(rawDetail.sku || matchedListRow?.sku || q);
-        const preservedFallbackImg = (prevSku === resolvedSku ? prevImage : '') || cachedSnapshot?.image || '';
+        const resolvedSku = String(rawDetail.sku || g(matchedListRow, 'sku') || q);
+        const preservedFallbackImg = (prevSku === resolvedSku ? prevImage : '') || g(cachedSnapshot, 'image') || '';
         const resolvedImg = extractImageUrl(rawDetail, matchedListRow, preservedFallbackImg);
 
         if (prevSku !== resolvedSku && (!cachedSnapshot || cachedSnapshot.sku !== resolvedSku)) {
@@ -2820,7 +3114,7 @@
           nameAr: extractArabicName(rawDetail, matchedListRow),
           price: extractPrice(rawDetail) || extractPrice(matchedListRow),
           onHand: totalSafeOnHand,
-          reserved: Number(rawDetail.reserved_quantity ?? matchedListRow?.reserved_quantity ?? 0) || 0,
+          reserved: Number(nn(rawDetail.reserved_quantity, g(matchedListRow, 'reserved_quantity'), 0)) || 0,
           location: bestLoc ? bestLoc.location : '—',
           expiry: bestLoc ? bestLoc.expiry : (rawDetail.nearest_expiry ? String(rawDetail.nearest_expiry).slice(0, 10) : '—'),
           rawExpiryIso: bestLoc ? bestLoc.rawExpiryIso : (rawDetail.nearest_expiry || null),
@@ -2861,7 +3155,7 @@
 
         el.btnLoadOlderMovements.disabled = false;
 
-        if (!movRes.ok || !Array.isArray(movRes.data?.items) || movRes.data.items.length === 0) {
+        if (!movRes.ok || !Array.isArray(g(movRes.data, 'items')) || movRes.data.items.length === 0) {
           p.nextMovementCursor = 0;
           renderMovementsView();
           showToast('Reached earliest recorded movement');
@@ -2876,8 +3170,8 @@
           }
         });
 
-        const nextTs = Number(movRes.data?.result_stats?.last_result_timestamp || 0) || 0;
-        const remaining = Number(movRes.data?.result_stats?.total_results || 0);
+        const nextTs = Number(g(movRes.data, 'result_stats', 'last_result_timestamp') || 0) || 0;
+        const remaining = Number(g(movRes.data, 'result_stats', 'total_results') || 0);
         p.nextMovementCursor = (movRes.data.items.length >= 8 && nextTs && nextTs !== p.nextMovementCursor && remaining > 8) ? nextTs : 0;
 
         renderMovementsView();
@@ -3136,7 +3430,7 @@
         const fieldRow = (label, val, mono = true, isRtl = false) => `
           <div class="flex items-start justify-between gap-2 py-1.5 border-b" style="border-color: var(--ui-border);">
             <span style="color: var(--ui-text-secondary);">${escHtml(label)}</span>
-            <span class="${mono ? 'font-mono-num' : ''} font-semibold text-right break-all" ${isRtl ? 'dir="rtl"' : ''} style="color: var(--ui-text);">${escHtml(val ?? '—')}</span>
+            <span class="${mono ? 'font-mono-num' : ''} font-semibold text-right break-all" ${isRtl ? 'dir="rtl"' : ''} style="color: var(--ui-text);">${escHtml(nn(val, '—'))}</span>
           </div>
         `;
 
@@ -3148,7 +3442,7 @@
             const locCode = l.location || l.location_code || '—';
             const locType = l.location_type || 'NORMAL';
             const exp = l.expiry_date ? String(l.expiry_date).slice(0, 10) : 'N/A';
-            const q = Number(l.qty ?? l.quantity ?? 0);
+            const q = Number(nn(l.qty, l.quantity, 0));
             const isSelected = (state.selectedShelfLocation || p.location) === locCode;
             return `
               <button
@@ -3186,13 +3480,13 @@
             ${fieldRow('tKiosk Price (791515)', priceTkiosk)}
             ${fieldRow('On Hand Quantity', p.onHand)}
             ${fieldRow('Reserved Quantity', p.reserved)}
-            ${fieldRow('In-Transit Incoming', raw.intransit_incoming_qty ?? 0)}
-            ${fieldRow('In-Transit Outgoing', raw.intransit_outgoing_qty ?? 0)}
-            ${fieldRow('Blocked / Pending Qty', `${raw.blocked_qty ?? 0} / ${raw.blocked_pending_qty ?? 0}`)}
-            ${fieldRow('Sales Buffer', raw.sales_buffer ?? 0)}
-            ${fieldRow('Min Shelf Life (Days)', raw.min_shelf_life ?? '—')}
+            ${fieldRow('In-Transit Incoming', nn(raw.intransit_incoming_qty, 0))}
+            ${fieldRow('In-Transit Outgoing', nn(raw.intransit_outgoing_qty, 0))}
+            ${fieldRow('Blocked / Pending Qty', `${nn(raw.blocked_qty, 0)} / ${nn(raw.blocked_pending_qty, 0)}`)}
+            ${fieldRow('Sales Buffer', nn(raw.sales_buffer, 0))}
+            ${fieldRow('Min Shelf Life (Days)', nn(raw.min_shelf_life, '—'))}
             ${fieldRow('Can Expire', raw.can_expire !== undefined ? String(raw.can_expire) : '—')}
-            ${fieldRow('Sold By Piece / Weighted', `${raw.sold_by_piece ?? true} / ${raw.is_weighted ?? false}`)}
+            ${fieldRow('Sold By Piece / Weighted', `${nn(raw.sold_by_piece, true)} / ${nn(raw.is_weighted, false)}`)}
             ${fieldRow('Catalog Category ID', raw.catalog_category_id || '—')}
             ${fieldRow('Last Updated At', raw.updated_at ? String(raw.updated_at).replace('T', ' ').slice(0, 19) : '—')}
           </div>
@@ -3328,15 +3622,37 @@
         el.cameraStatusBadge.textContent = 'Starting HD camera...';
 
         try {
-          const stream = await navigator.mediaDevices.getUserMedia({
-            video: {
-              facingMode: { ideal: state.cameraFacing || 'environment' },
+          let stream = null;
+          const facing = state.cameraFacing || 'environment';
+          const constraintTiers = [
+            {
+              facingMode: { ideal: facing },
               width: { ideal: 1920, min: 1280 },
               height: { ideal: 1080, min: 720 },
               frameRate: { ideal: 60, min: 30 }
             },
-            audio: false
-          });
+            {
+              facingMode: { ideal: facing },
+              width: { ideal: 1280 },
+              height: { ideal: 720 },
+              frameRate: { ideal: 30 }
+            },
+            {
+              facingMode: facing
+            },
+            true
+          ];
+          for (let ti = 0; ti < constraintTiers.length; ti++) {
+            try {
+              stream = await navigator.mediaDevices.getUserMedia({
+                video: constraintTiers[ti],
+                audio: false
+              });
+              if (stream) break;
+            } catch (tierErr) {
+              if (ti === constraintTiers.length - 1) throw tierErr;
+            }
+          }
 
           if (!state.cameraOpen) {
             stream.getTracks().forEach((t) => t.stop());
@@ -3795,7 +4111,7 @@
         (target.entries || []).forEach((e) => {
           const u = Math.abs(Number(e.delta) || 0);
           const unitPrice = Number(formatPrice(e.unitPrice)) || 0;
-          const v = Number(formatPrice(e.lineValueEgp ?? (u * unitPrice))) || 0;
+          const v = Number(formatPrice(nn(e.lineValueEgp, u * unitPrice))) || 0;
 
           if (e.delta < 0) {
             removedUnits += u;
@@ -3816,7 +4132,7 @@
               removedQty: 0,
               netQty: 0,
               opsCount: 0,
-              lastAfterQty: e.afterQty ?? 0
+              lastAfterQty: nn(e.afterQty, 0)
             });
           }
           const agg = skuMap.get(skuKey);
@@ -4043,7 +4359,7 @@
       function buildShiftCsvPayload(shiftObj) {
         const sh = shiftObj || getActiveShift();
         const m = computeShiftMetrics(sh);
-        const esc = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+        const esc = (v) => `"${String(nn(v, '')).replace(/"/g, '""')}"`;
 
         const csvRows = [
           ['Smouha Stock DS 60 - Shift Summary Report', esc(sh.title || 'Shift'), esc(sh.startedAt)].join(','),
@@ -4577,7 +4893,15 @@
       loadPrefsFromStorage();
       loadRecentFromStorage();
       loadShiftsFromStorage();
-      addLog('BOOT', 'Smouha Stock v5.5 initialized', { deviceId: getDeviceId() });
+      try {
+        var uaMatch = (navigator.userAgent || '').match(/Chrome\/(\d+)/);
+        var chromeVer = uaMatch ? parseInt(uaMatch[1], 10) : 120;
+        var lowMem = navigator.deviceMemory && navigator.deviceMemory <= 3;
+        if (chromeVer < 88 || lowMem) {
+          document.documentElement.setAttribute('data-lite-gpu', 'true');
+        }
+      } catch (e) {}
+      addLog('BOOT', 'Smouha Stock v5.6 (Android 9+ Universal) initialized', { deviceId: getDeviceId() });
       document.addEventListener('pointerdown', () => { try { getAudioContext(); } catch (e) {} }, { once: true });
       renderAll();
 

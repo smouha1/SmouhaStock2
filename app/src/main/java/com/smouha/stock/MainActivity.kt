@@ -63,6 +63,8 @@ class MainActivity : AppCompatActivity() {
         settings.mediaPlaybackRequiresUserGesture = false
         settings.allowFileAccess = false
         settings.allowContentAccess = false
+        settings.cacheMode = WebSettings.LOAD_DEFAULT
+        webView.setLayerType( android.view.View.LAYER_TYPE_HARDWARE, null )
 
         webView.webViewClient = WebViewClient()
         webView.webChromeClient = object : WebChromeClient() {
