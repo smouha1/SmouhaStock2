@@ -2,13 +2,17 @@ package com.smouha.stock
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.ContentValues
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
+import android.provider.MediaStore
 import android.provider.Settings
 import android.webkit.JavascriptInterface
 import android.webkit.PermissionRequest
@@ -22,6 +26,7 @@ import androidx.core.content.ContextCompat
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.BufferedReader
+import java.io.File
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
@@ -135,7 +140,61 @@ class MainActivity : AppCompatActivity() {
         }
 
         /**
-         * Direct Native HTTPS call to https://im-bff-live-me.deliveryhero.io (bypasses browser CORS)
+         * Saves CSV directly into Android Downloads folder via MediaStore and opens native Share Sheet.
+         */
+        @JavascriptInterface
+        fun saveAndShareCsv(fileName: String, csvContent: String): String {
+            return try {
+                val safeName = if (fileName.endsWith(".csv")) fileName else "$fileName.csv"
+                var savedPath = "Downloads/$safeName"
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    val values = ContentValues().apply {
+                        put(MediaStore.Downloads.DISPLAY_NAME, safeName)
+                        put(MediaStore.Downloads.MIME_TYPE, "text/csv")
+                        put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+                    }
+                    val uri = ctx.contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
+                    if (uri != null) {
+                        ctx.contentResolver.openOutputStream(uri)?.use { os ->
+                            os.write(csvContent.toByteArray(Charsets.UTF_8))
+                            os.flush()
+                        }
+                    }
+                } else {
+                    @Suppress("DEPRECATION")
+                    val dlDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                    dlDir.mkdirs()
+                    val outFile = File(dlDir, safeName)
+                    outFile.writeText(csvContent, Charsets.UTF_8)
+                    savedPath = outFile.absolutePath
+                }
+
+                val sendIntent = Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_SUBJECT, safeName)
+                    putExtra(Intent.EXTRA_TEXT, csvContent)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                val chooser = Intent.createChooser(sendIntent, "Share Shift CSV ($safeName)").apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                ctx.startActivity(chooser)
+
+                JSONObject()
+                    .put("ok", true)
+                    .put("savedPath", savedPath)
+                    .toString()
+            } catch (e: Exception) {
+                JSONObject()
+                    .put("ok", false)
+                    .put("error", e.message ?: "SHARE_ERROR")
+                    .toString()
+            }
+        }
+
+        /**
+         * Direct Native HTTPS call to https://im-bff-live-me.deliveryhero.io or opd-live-me.deliveryhero.io
          */
         @JavascriptInterface
         fun dmartRequest(method: String, path: String, bodyJson: String): String {
