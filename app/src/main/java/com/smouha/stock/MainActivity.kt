@@ -222,7 +222,7 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 val status = conn.responseCode
-                val stream = if (status in 200..299) conn.inputStream else conn.errorStream
+                val stream = (if (status in 200..299) conn.inputStream else conn.errorStream) ?: conn.inputStream
                 val text = BufferedReader(InputStreamReader(stream, Charsets.UTF_8)).use { it.readText() }
                 JSONObject()
                     .put("ok", status in 200..299)

@@ -14,8 +14,8 @@ android {
         applicationId = "com.smouha.stock"
         minSdk = 21
         targetSdk = 34
-        versionCode = 110
-        versionName = "1.1.0"
+        versionCode = 120
+        versionName = "5.5.0"
     }
 
     signingConfigs {
@@ -52,7 +52,7 @@ android {
 }
 
 dependencies {
-    implementation("androidx.core:core-ktx:1.12.0")
-    implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("androidx.webkit:webkit:1.10.0")
+    implementation("androidx.core:core-ktx:1.13.1")
+    implementation("androidx.appcompat:appcompat:1.7.0")
+    implementation("androidx.webkit:webkit:1.11.0")
 }
