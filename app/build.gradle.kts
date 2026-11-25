@@ -3,8 +3,8 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
-fun envOrDefault(name: String, default: String): String =
-    System.getenv(name)?.takeIf { it.isNotBlank() } ?: default
+fun envOrBlank(name: String): String =
+    System.getenv(name)?.trim() ?: ""
 
 android {
     namespace = "com.smouha.stock"
@@ -14,17 +14,20 @@ android {
         applicationId = "com.smouha.stock"
         minSdk = 21
         targetSdk = 34
-        versionCode = 130
-        versionName = "5.6.0"
+        versionCode = 180
+        versionName = "5.11.0"
     }
 
     signingConfigs {
         create("release") {
-            storeFile     = file(envOrDefault("SMOUHA_KEYSTORE_FILE", "/tmp/smouha-keys/smouha-release.jks"))
-            storePassword = envOrDefault("SMOUHA_KEYSTORE_PASS", "SmouhaOps2026#Key")
-            keyAlias      = envOrDefault("SMOUHA_KEY_ALIAS", "smouha_release_key")
-            keyPassword   = envOrDefault("SMOUHA_KEY_PASS", "SmouhaOps2026#Key")
-            enableV1Signing = true
+            val ksPath = envOrBlank("SMOUHA_KEYSTORE_FILE")
+            if (ksPath.isNotEmpty()) {
+                storeFile = file(ksPath)
+            }
+            storePassword = envOrBlank("SMOUHA_KEYSTORE_PASS")
+            keyAlias      = envOrBlank("SMOUHA_KEY_ALIAS")
+            keyPassword   = envOrBlank("SMOUHA_KEY_PASS")
+            enableV1Signing = false
             enableV2Signing = true
             enableV3Signing = true
         }
@@ -32,8 +35,9 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
-            isShrinkResources = false
+            isMinifyEnabled = true
+            isShrinkResources = true
+            isDebuggable = false
             signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
