@@ -14,8 +14,8 @@ android {
         applicationId = "com.smouha.stock"
         minSdk = 21
         targetSdk = 34
-        versionCode = 180
-        versionName = "5.11.0"
+        versionCode = 190
+        versionName = "5.12.0"
     }
 
     signingConfigs {

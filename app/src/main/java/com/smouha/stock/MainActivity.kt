@@ -167,6 +167,9 @@ class MainActivity : AppCompatActivity() {
         val settings: WebSettings = webView.settings
         settings.javaScriptEnabled = true
         settings.domStorageEnabled = true
+        settings.loadsImagesAutomatically = true
+        settings.blockNetworkImage = false
+        settings.blockNetworkLoads = false
         settings.mediaPlaybackRequiresUserGesture = false
         settings.allowFileAccess = false
         settings.allowContentAccess = false

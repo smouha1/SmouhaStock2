@@ -3,8 +3,9 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover" />
-<title>Smouha Stock — DS 60 Inventory Operations v5.11 (Hardened, Bearer-Safe & Anti-RE)</title>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://*.deliveryhero.io https://*.talabat.com; connect-src 'self' https://smouha-papper.sunton857.workers.dev https://im-bff-live-me.deliveryhero.io https://opd-live-me.deliveryhero.io;" />
+<title>Smouha Stock — DS 60 Inventory Operations v5.12 (Hardened, Full Image CDN & Anti-RE)</title>
+<meta name="referrer" content="no-referrer" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://*.dhmedia.io https://talabat.dhmedia.io https://*.deliveryhero.io https://images.deliveryhero.io https://*.deliveryhero.net https://*.talabat.com https://*.cloudfront.net; connect-src 'self' https://smouha-papper.sunton857.workers.dev https://im-bff-live-me.deliveryhero.io https://opd-live-me.deliveryhero.io;" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
@@ -222,7 +223,7 @@ style="background: var(--ui-surface-subtle); border-color: var(--ui-border);"
 <div id="prodImageSkeleton" class="absolute inset-0 skeleton-shimmer flex items-center justify-center">
 <span id="prodImageSkeletonSku" class="font-mono-num text-[10px] font-bold" style="color: var(--ui-text-muted);">...</span>
 </div>
-<img id="prodImage" src="" alt="Product" class="max-w-full max-h-full object-contain opacity-0 transition-opacity duration-150" />
+<img id="prodImage" alt="Product" referrerpolicy="no-referrer" decoding="async" class="max-w-full max-h-full object-contain opacity-0 transition-opacity duration-150" />
 <span class="absolute bottom-1 right-1 w-4 h-4 rounded flex items-center justify-center bg-black/60 text-white">
 <svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.3">
 <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M10.5 7.5v6m3-3h-6M17 10.5a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z"></path>
@@ -869,8 +870,9 @@ style="background: var(--ui-surface-subtle); border-color: var(--ui-border); tou
 >
 <img
 id="zoomModalImg"
-src=""
 alt="Product"
+referrerpolicy="no-referrer"
+decoding="async"
 draggable="false"
 class="max-w-full max-h-full object-contain pointer-events-none"
 style="transform-origin: center center; transform: translate3d(0px, 0px, 0px) scale(1); will-change: transform;"
@@ -1021,11 +1023,12 @@ return String(nn(str, ''))
 .replace(/eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}/g, '[REDACTED_JWT]')
 .replace(/(Smouha(?:Mob|DS60)-[A-Z0-9]{4})-[A-Z0-9]{4}/gi, '$1-****');
 }
-// Enforces strictly https:// or data:image/ URLs on product images (VULN-04)
+// Enforces strictly https:// or data:image/ URLs on product images & upgrades http:// CDN links (VULN-04 / V512-IMG-01)
 function sanitizeHttpsImageUrl(rawUrl) {
 var u = String(nn(rawUrl, '')).trim();
 if (!u) return '';
 if (u.indexOf('//') === 0) u = 'https:' + u;
+if (u.indexOf('http://') === 0) u = 'https://' + u.slice(7);
 if (u.indexOf('https://') === 0 || u.indexOf('data:image/') === 0) return u;
 return '';
 }
@@ -1758,7 +1761,7 @@ body: JSON.stringify({
 deviceId: devId,
 deviceLabel: 'Smouha Stock Mobile',
 licenseKey: cleanKey,
-version: '5.11.0'
+version: '5.12.0'
 })
 });
 const data = await res.json().catch(() => ({}));
@@ -1925,17 +1928,34 @@ function extractImageUrl(rawDetail, matchedListRow, fallbackImg) {
 const pick = (obj) => {
 if (!obj || typeof obj !== 'object') return '';
 if (typeof obj.image === 'string' && obj.image.trim()) return obj.image.trim();
-if (obj.image && typeof obj.image.url === 'string' && obj.image.url.trim()) return obj.image.url.trim();
-if (typeof obj.image_url === 'string' && obj.image_url.trim()) return obj.image_url.trim();
-if (typeof obj.thumbnail === 'string' && obj.thumbnail.trim()) return obj.thumbnail.trim();
-if (Array.isArray(obj.images) && obj.images.length > 0) {
-const first = obj.images[0];
-if (typeof first === 'string' && first.trim()) return first.trim();
-if (first && typeof first.url === 'string' && first.url.trim()) return first.url.trim();
+if (obj.image && typeof obj.image === 'object') {
+const nested = obj.image.url || obj.image.src || obj.image.original || obj.image.large || obj.image.medium || obj.image.thumbnail;
+if (typeof nested === 'string' && nested.trim()) return nested.trim();
+}
+const flatKeys = [
+obj.image_url, obj.imageUrl, obj.img_url, obj.imgUrl,
+obj.thumbnail, obj.thumb_url, obj.thumbUrl, obj.picture, obj.photo
+];
+for (let i = 0; i < flatKeys.length; i++) {
+if (typeof flatKeys[i] === 'string' && flatKeys[i].trim()) return flatKeys[i].trim();
+}
+const arrList = [obj.images, obj.image_urls, obj.imageUrls, obj.media];
+for (let a = 0; a < arrList.length; a++) {
+const arr = arrList[a];
+if (Array.isArray(arr) && arr.length > 0) {
+for (let j = 0; j < arr.length; j++) {
+const it = arr[j];
+if (typeof it === 'string' && it.trim()) return it.trim();
+if (it && typeof it === 'object') {
+const u = it.url || it.src || it.image_url || it.imageUrl;
+if (typeof u === 'string' && u.trim()) return u.trim();
+}
+}
+}
 }
 return '';
 };
-const url = pick(rawDetail) || pick(matchedListRow) || String(fallbackImg || '').trim();
+const url = pick(rawDetail) || pick(g(rawDetail, 'product')) || pick(matchedListRow) || String(fallbackImg || '').trim();
 return sanitizeHttpsImageUrl(url);
 }
 function pickSafeLocations(prodDetail) {
@@ -2012,7 +2032,7 @@ btn.type = 'button';
 btn.className = 'w-full text-left px-3 py-2.5 flex items-center justify-between gap-2.5 transition-colors hover:opacity-95';
 btn.style.background = 'var(--ui-surface-elevated)';
 const thumbHtml = item.image
-? `<img src="${escHtml(item.image)}" alt="" class="w-9 h-9 rounded-lg object-contain border shrink-0 p-0.5" style="background: var(--ui-surface-subtle); border-color: var(--ui-border);" data-hide-on-err="1" />`
+? `<img src="${escHtml(item.image)}" alt="" referrerpolicy="no-referrer" decoding="async" data-sku="${escHtml(item.sku)}" class="w-9 h-9 rounded-lg object-contain border shrink-0 p-0.5" style="background: var(--ui-surface-subtle); border-color: var(--ui-border);" data-hide-on-err="1" />`
 : `<div class="w-9 h-9 rounded-lg flex items-center justify-center font-mono-num text-[10px] font-bold shrink-0" style="background: var(--ui-primary-soft); color: var(--ui-primary);">${escHtml(item.sku.slice(-4))}</div>`;
 btn.innerHTML = `
 <div class="flex items-center gap-2.5 min-w-0">
@@ -2886,7 +2906,8 @@ const p = state.currentProduct;
 if (!p) return;
 el.zoomModalTitle.textContent = p.name;
 el.zoomModalSku.textContent = `SKU ${p.sku}`;
-el.zoomModalImg.src = el.prodImage.getAttribute('src') || p.image || '';
+const bestSrc = (p.image && String(p.image).trim()) ? String(p.image).trim() : (el.prodImage.getAttribute('src') || makeSkuFallbackSvg(p.sku));
+el.zoomModalImg.src = bestSrc;
 resetZoomAndPan();
 el.imageZoomModal.classList.remove('hidden');
 el.imageZoomModal.classList.add('flex');
@@ -2969,15 +2990,23 @@ el.prodImageSkeleton.classList.add('hidden');
 el.prodImage.classList.remove('opacity-0');
 });
 on(el.prodImage, 'error', () => {
+if (!el.prodImage.getAttribute('src')) return;
 const p = state.currentProduct;
 const fb = makeSkuFallbackSvg(p ? p.sku : 'SKU');
-if (el.prodImage.getAttribute('data-target-url') !== fb) {
-el.prodImage.setAttribute('data-target-url', fb);
+if (el.prodImage.getAttribute('src') !== fb) {
 el.prodImage.setAttribute('src', fb);
 el.prodImage.src = fb;
 }
 el.prodImageSkeleton.classList.add('hidden');
 el.prodImage.classList.remove('opacity-0');
+});
+on(el.zoomModalImg, 'error', () => {
+if (!el.zoomModalImg.getAttribute('src')) return;
+const p = state.currentProduct;
+const fb = makeSkuFallbackSvg(p ? p.sku : 'SKU');
+if (el.zoomModalImg.getAttribute('src') !== fb) {
+el.zoomModalImg.src = fb;
+}
 });
 function renderProduct() {
 const p = state.currentProduct;
@@ -3000,11 +3029,11 @@ el.prodImageSkeletonSku.textContent = p.sku;
 el.prodImage.setAttribute('data-target-url', targetUrl);
 el.prodImage.setAttribute('src', targetUrl);
 el.prodImage.src = targetUrl;
-if (targetUrl.startsWith('data:image/') || el.prodImage.complete) {
+if (targetUrl.indexOf('data:image/') === 0 || (el.prodImage.complete && el.prodImage.naturalWidth > 0)) {
 el.prodImageSkeleton.classList.add('hidden');
 el.prodImage.classList.remove('opacity-0');
 }
-} else {
+} else if (targetUrl.indexOf('data:image/') === 0 || (el.prodImage.complete && el.prodImage.naturalWidth > 0)) {
 el.prodImageSkeleton.classList.add('hidden');
 el.prodImage.classList.remove('opacity-0');
 }
@@ -3108,7 +3137,7 @@ btn.className = 'ui-interactive-row w-full text-left flex items-center justify-b
 btn.style.background = 'var(--ui-surface-subtle)';
 btn.style.borderColor = 'var(--ui-border)';
 const thumbHtml = item.image
-? `<img src="${escHtml(item.image)}" alt="" class="w-10 h-10 rounded-lg object-contain border shrink-0 p-0.5" style="background: var(--ui-surface); border-color: var(--ui-border);" data-hide-on-err="1" />`
+? `<img src="${escHtml(item.image)}" alt="" referrerpolicy="no-referrer" decoding="async" data-sku="${escHtml(item.sku)}" class="w-10 h-10 rounded-lg object-contain border shrink-0 p-0.5" style="background: var(--ui-surface); border-color: var(--ui-border);" data-hide-on-err="1" />`
 : `<div class="w-10 h-10 rounded-lg flex items-center justify-center font-mono-num text-[11px] font-bold shrink-0" style="background: var(--ui-primary-soft); color: var(--ui-primary);">${escHtml(item.sku.slice(-4))}</div>`;
 btn.innerHTML = `
 <div class="flex items-center gap-2.5 min-w-0 pr-2">
@@ -3844,9 +3873,9 @@ if (chromeVer < 88 || lowMem) {
 document.documentElement.setAttribute('data-lite-gpu', 'true');
 }
 } catch (e) {}
-addLog('BOOT', 'Smouha Stock v5.11 (Hardened, Bearer-Safe & Anti-RE) initialized', { deviceId: getDeviceId() });
+addLog('BOOT', 'Smouha Stock v5.12 (Hardened, Full Image CDN & Anti-RE) initialized', { deviceId: getDeviceId() });
 document.addEventListener('pointerdown', () => { try { getAudioContext(); } catch (e) {} }, { once: true });
-document.addEventListener('error', (e) => { if (e.target && e.target.tagName === 'IMG' && e.target.getAttribute('data-hide-on-err') === '1') { e.target.style.display = 'none'; } }, true);
+document.addEventListener('error', (e) => { if (e.target && e.target.tagName === 'IMG' && e.target.getAttribute('data-hide-on-err') === '1') { e.target.removeAttribute('data-hide-on-err'); e.target.src = makeSkuFallbackSvg(e.target.getAttribute('data-sku') || 'SKU'); } }, true);
 renderAll();
 try {
 const savedKey = readSecureLicenseKey();
